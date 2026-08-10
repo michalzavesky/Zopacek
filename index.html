@@ -140,6 +140,13 @@
   .catbtn:hover{border-color:var(--blue-bright); color:var(--blue-bright);}
   .catbtn.active{background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:var(--shadow-sm);}
 
+  .gatewrap{position:relative;}
+  .gatewrap.locked > *:not(.gatelock){filter:blur(4px); pointer-events:none; user-select:none;}
+  .gatelock{display:none; position:absolute; inset:0; z-index:5; align-items:center; justify-content:center; flex-direction:column; gap:10px; text-align:center; padding:20px;}
+  .gatewrap.locked .gatelock{display:flex;}
+  .gatelock .lockbadge{background:var(--ink); color:#fff; font-size:14px; font-weight:600; padding:11px 20px; border-radius:8px; box-shadow:var(--shadow-md);}
+  .gatelock a.lockbadge{text-decoration:none;}
+
   .toollist{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
   .tool{background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px; box-shadow:var(--shadow-sm); transition:box-shadow .2s ease, transform .2s ease;}
   .tool:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
@@ -177,8 +184,8 @@
 
   .pricing{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
   .member-only{display:none!important;}
-  .paid-member{display:none!important;}
-  .approved-member{display:none!important;}
+  .paid-member{}
+  .approved-member{}
   .auth-choice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
   .auth-choice button{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);}
   .auth-choice button.active{background:var(--blue);border-color:var(--blue);color:#fff;}
@@ -357,7 +364,7 @@
 </section>
 
 <!-- ============ TIER 1: UCHAZEČI ============ -->
-<section id="uchazeci" class="wrap tiersection paid-member applicant-only">
+<section id="uchazeci" class="wrap tiersection">
   <div class="sechead">
     <span class="tiernum t1">Tier 1 · 199 Kč / měsíc</span>
     <h2>Pro ty, co se teprve hlásí</h2>
@@ -444,11 +451,17 @@
 </section>
 
 <!-- ============ TIER 2: KOLEGOVÉ ============ -->
-<section id="kolegove" class="wrap tiersection paid-member colleague-only">
+<section id="kolegove" class="wrap tiersection">
   <div class="sechead">
     <span class="tiernum t2">Tier 2 · 99 Kč / měsíc</span>
     <h2>Pro kolegy, co už slouží</h2>
     <p>Praktické nástroje a tabulky do služby — ke stažení, vytisknutí, nebo rovnou v mobilu na směně.</p>
+  </div>
+
+  <div class="gatewrap" data-plan="kolegove">
+  <div class="gatelock">
+    <div class="lockbadge">🔒 Odemkne se po aktivaci předplatného Kolegové ve službě</div>
+    <a class="lockbadge" href="#overeni" style="background:var(--blue);">Aktivovat členství</a>
   </div>
 
   <div class="subsechead">Obecné nástroje — pro každého</div>
@@ -559,6 +572,7 @@
       <div class="demo-note" style="padding:22px 24px; font-size:14px;">Tahle sekce čeká na tvůj konkrétní obsah — postupy, tabulky a checklisty, co reálně používáš na obvodě. Dej vědět, co tam má být, a doplním to ve stejném stylu jako dopravku.</div>
     </div>
   </div>
+  </div><!-- /gatewrap kolegove -->
 </section>
 
 <!-- ============ CENÍK ============ -->
@@ -827,14 +841,20 @@ document.getElementById('coopGender').addEventListener('change', updateCooper);
 
 /* ===== REGISTRACE + VÝBĚR ČLENSTVÍ ===== */
 const PLAN_LABELS = {
-  uchazeci: 'Uchazeči — 199 Kč / měsíc',
-  kolegove: 'Kolegové ve službě — 99 Kč / měsíc'
+  uchazeci: 'Uchazeči — 199 Kč / měsíc (testovací provoz, platba zatím nefunguje)',
+  kolegove: 'Kolegové ve službě — 99 Kč / měsíc (testovací provoz, platba zatím nefunguje)'
 };
 
+let selectedPlan = 'uchazeci';
+
+function nickToInternalId(nick){
+  const clean = nick.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  return 'nick-' + clean + '@zopacek-interni.local';
+}
 
 function selectPlan(plan){
   if(!PLAN_LABELS[plan]) return;
-  localStorage.setItem('zopacek_selected_plan', plan);
+  selectedPlan = plan;
 
   const input = document.getElementById('regPlan');
   const label = document.getElementById('selectedPlanLabel');
@@ -851,113 +871,96 @@ function selectPlan(plan){
   if(plan === 'uchazeci'){
     candidate.style.display = '';
     police.style.display = 'none';
-    candNick.required = true;
-    candPass.required = true;
-    policeInputs.forEach(el => el.required = false);
+    if(candNick) candNick.required = true;
+    if(candPass) candPass.required = true;
+    policeInputs.forEach(el => { if(el) el.required = false; });
   } else {
     candidate.style.display = 'none';
     police.style.display = '';
-    candNick.required = false;
-    candPass.required = false;
-    policeInputs.forEach(el => el.required = true);
+    if(candNick) candNick.required = false;
+    if(candPass) candPass.required = false;
+    policeInputs.forEach(el => { if(el) el.required = true; });
   }
-
-  document.getElementById('overeni').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-(function restoreSelectedPlan(){
-  const plan = localStorage.getItem('zopacek_selected_plan') || 'uchazeci';
-  selectPlan(plan);
-})();
+selectPlan('uchazeci');
 
+/* ===== REGISTRACE (přímo přes Supabase, bez Edge Functions) ===== */
 document.getElementById('regForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-
   const status = document.getElementById('regStatus');
-  const plan = document.getElementById('regPlan').value;
-  status.className='regstatus show pending';
-  status.textContent='Zakládám účet…';
+  status.className = 'regstatus show pending';
+  status.textContent = 'Zakládám účet…';
 
-  if(!PLAN_LABELS[plan]){
-    status.textContent='Vyber nejdřív členství.';
-    return;
-  }
-
-  let body = { plan };
+  const plan = selectedPlan;
+  let internalId, password, insertPayload;
 
   if(plan === 'uchazeci'){
-    body.nickname = document.getElementById('regNickname').value.trim();
-    body.password = document.getElementById('regPasswordCandidate').value;
-
-    if(!body.nickname || !body.password){
-      status.textContent='Vyplň přezdívku a heslo.';
+    const nickname = document.getElementById('regNickname').value.trim();
+    password = document.getElementById('regPasswordCandidate').value;
+    if(!nickname || !password){
+      status.className = 'regstatus show error';
+      status.textContent = 'Vyplň přezdívku a heslo.';
       return;
     }
+    internalId = nickToInternalId(nickname);
+    insertPayload = { plan, nickname, status: 'approved' };
   } else {
-    body.oec = document.getElementById('regOec').value.trim();
-    body.jmeno = document.getElementById('regJmeno').value.trim();
-    body.utvar = document.getElementById('regUtvar').value.trim();
-    body.password = document.getElementById('regPasswordPolice').value;
-
-    if(!body.oec || !body.jmeno || !body.utvar || !body.password){
-      status.textContent='Vyplň OEČ, jméno, útvar a heslo.';
+    const oec = document.getElementById('regOec').value.trim();
+    const jmeno = document.getElementById('regJmeno').value.trim();
+    const utvar = document.getElementById('regUtvar').value.trim();
+    password = document.getElementById('regPasswordPolice').value;
+    if(!oec || !jmeno || !utvar || !password){
+      status.className = 'regstatus show error';
+      status.textContent = 'Vyplň OEČ, jméno, útvar a heslo.';
       return;
     }
+    internalId = oecToInternalId(oec);
+    insertPayload = { plan, oec, jmeno, utvar, status: 'pending' };
   }
 
-  if(body.password.length < 12){
-    status.textContent='Heslo musí mít alespoň 12 znaků.';
-    return;
-  }
-
-  const { data, error } = await sb.functions.invoke('register-member', { body });
-
+  const { data, error } = await sb.auth.signUp({ email: internalId, password });
   if(error){
-    status.className='regstatus show error';
-    status.textContent='Účet se nepodařilo vytvořit. Zkontroluj údaje a zkus to znovu.';
+    status.className = 'regstatus show error';
+    if(error.message.includes('already registered')){
+      status.textContent = plan === 'uchazeci'
+        ? 'Tahle přezdívka už je zabraná. Zkus jinou, nebo se rovnou přihlas.'
+        : 'Pod tímhle OEČ už je účet založený. Zkus se rovnou přihlásit.';
+    } else {
+      status.textContent = 'Nepodařilo se založit účet: ' + error.message;
+    }
     return;
   }
 
-  if(data?.access_token && data?.refresh_token){
-    await sb.auth.setSession({
-      access_token: data.access_token,
-      refresh_token: data.refresh_token
-    });
+  if(!data.session){
+    status.className = 'regstatus show error';
+    status.textContent = 'Účet založen, ale nejsi ještě přihlášený — zkontroluj v Supabase, že Email provider je zapnutý a Confirm email vypnuté.';
+    return;
   }
 
-  document.getElementById('paymentStep').style.display='';
-  document.getElementById('paymentStepText').textContent =
-    `Vybráno: ${PLAN_LABELS[plan]}. Dokonči měsíční platbu.`;
+  insertPayload.user_id = data.session.user.id;
+  const { error: insertError } = await sb.from('verification_requests').insert(insertPayload);
 
-  status.className='regstatus show success';
+  if(insertError){
+    status.className = 'regstatus show error';
+    status.textContent = 'Účet založen, ale žádost se neuložila: ' + insertError.message;
+    return;
+  }
+
+  status.className = 'regstatus show success';
   status.textContent = plan === 'uchazeci'
-    ? 'Účet je vytvořen. Po zaplacení se ihned odemkne sekce pro uchazeče.'
-    : 'Účet je vytvořen. Po zaplacení se ihned odemknou užitečné materiály. Ověření pro poradnu potrvá přibližně 3 dny.';
+    ? 'Účet vytvořen a rovnou aktivní (testovací provoz, platba zatím nefunguje).'
+    : 'Účet vytvořen. Přístup k materiálům máš hned, poradna se odemkne po ručním ověření OEČ (obvykle pár dní).';
 
   e.target.reset();
-  selectPlan(plan);
   await checkAccess();
 });
 
-async function startPayment(){
-  const { data: sessionData } = await sb.auth.getSession();
-  if(!sessionData.session){
-    alert('Nejdřív se přihlas nebo dokonči registraci.');
-    return;
-  }
-
-  const { data, error } = await sb.functions.invoke('create-checkout-session', {
-    body: {}
-  });
-
-  if(error || !data?.url){
-    alert('Platební stránka zatím není napojená. Až bude napojený Stripe Checkout, toto tlačítko tě tam přesměruje.');
-    return;
-  }
-  window.location.href = data.url;
+/* ===== PŘIHLÁŠENÍ ===== */
+function togglePoradnaLogin(e){
+  if(e) e.preventDefault();
+  document.getElementById('login').scrollIntoView({behavior:'smooth', block:'start'});
 }
-
-document.getElementById('paymentButton').addEventListener('click', startPayment);
 
 function switchLoginType(type){
   const candidate = type === 'uchazeci';
@@ -967,119 +970,126 @@ function switchLoginType(type){
   document.getElementById('loginPolicePanel').classList.toggle('active', !candidate);
 }
 
-async function doMemberLogin(body, statusEl){
-  statusEl.className='regstatus show pending';
-  statusEl.textContent='Přihlašuji…';
+async function doLogin(internalId, password, statusEl){
+  statusEl.className = 'regstatus show pending';
+  statusEl.textContent = 'Přihlašuji…';
 
-  const { data, error } = await sb.functions.invoke('login-member', { body });
-
-  if(error || !data?.access_token || !data?.refresh_token){
-    statusEl.className='regstatus show error';
-    statusEl.textContent='Přihlášení se nezdařilo. Zkontroluj přihlašovací údaje.';
+  const { error } = await sb.auth.signInWithPassword({ email: internalId, password });
+  if(error){
+    statusEl.className = 'regstatus show error';
+    statusEl.textContent = 'Přihlášení se nezdařilo: ' + error.message;
     return;
   }
-
-  await sb.auth.setSession({
-    access_token: data.access_token,
-    refresh_token: data.refresh_token
-  });
-
-  statusEl.className='regstatus show success';
-  statusEl.textContent='Přihlášeno.';
+  statusEl.className = 'regstatus show success';
+  statusEl.textContent = 'Přihlášeno.';
   await checkAccess();
 }
 
 document.getElementById('loginCandidateForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  await doMemberLogin({
-    plan:'uchazeci',
-    nickname:document.getElementById('loginNickname').value.trim(),
-    password:document.getElementById('loginPasswordCandidate').value
-  }, document.getElementById('loginCandidateStatus'));
+  const nickname = document.getElementById('loginNickname').value.trim();
+  const password = document.getElementById('loginPasswordCandidate').value;
+  await doLogin(nickToInternalId(nickname), password, document.getElementById('loginCandidateStatus'));
 });
 
 document.getElementById('loginPoliceForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  await doMemberLogin({
-    plan:'kolegove',
-    oec:document.getElementById('loginOec').value.trim(),
-    jmeno:document.getElementById('loginJmeno').value.trim(),
-    password:document.getElementById('loginPasswordPolice').value
-  }, document.getElementById('loginPoliceStatus'));
+  const oec = document.getElementById('loginOec').value.trim();
+  const password = document.getElementById('loginPasswordPolice').value;
+  await doLogin(oecToInternalId(oec), password, document.getElementById('loginPoliceStatus'));
 });
 
-/* ===== PŘÍSTUP PODLE PLATBY A OVĚŘENÍ ===== */
+/* ===== PLATBA — zatím jen informativní, Stripe není napojený ===== */
+async function startPayment(){
+  alert('Platby zatím nejsou napojené (řeším živnost/IČO). Zatím máš přístup zdarma v testovacím provozu — dám vědět, až bude placení funkční.');
+}
+const paymentBtn = document.getElementById('paymentButton');
+if(paymentBtn) paymentBtn.addEventListener('click', startPayment);
+
+/* ===== KONTROLA PŘÍSTUPU + NAČTENÍ PORADNY =====
+   Zamykání obsahu (gatewrap) je zatím vypnuté — platby ještě nejsou napojené,
+   takže je obsah pro uchazeče i kolegy volně přístupný. Až bude Stripe hotový,
+   stačí v applyGating() vrátit reálnou podmínku podle subscription_status. */
+async function applyGating(userPlan, subscriptionStatus){
+  document.querySelectorAll('.gatewrap').forEach(el => {
+    el.classList.remove('locked');
+  });
+}
+
 async function checkAccess(){
   const { data: sessionData } = await sb.auth.getSession();
   const user = sessionData.session ? sessionData.session.user : null;
-  if(!user) return;
+  if(!user){
+    applyGating(null, 'inactive');
+    return;
+  }
 
-  const { data: statusData, error } = await sb
-    .from('verification_status')
+  const { data: reqData, error } = await sb
+    .from('verification_requests')
     .select('status,plan,subscription_status')
     .eq('user_id', user.id)
     .maybeSingle();
 
   const heading = document.getElementById('poradnaHeading');
   const lockOverlay = document.getElementById('lockOverlay');
+  const forumPreview = document.getElementById('forumPreview');
   const livePoradna = document.getElementById('livePoradna');
+  const payStep = document.getElementById('paymentStep');
+  const payText = document.getElementById('paymentStepText');
 
-  if(error){
-    heading.textContent='Nepodařilo se ověřit stav účtu.';
-    return;
-  }
-  if(!statusData){
-    heading.textContent='Účet zatím nemá aktivované členství.';
-    return;
-  }
-
-  const paid = statusData.subscription_status === 'active' || statusData.status === 'paid' || statusData.status === 'approved';
-  const approved = statusData.status === 'approved' && statusData.plan === 'kolegove';
-
-  /* Placení uživatelé dostanou okamžitě běžný obsah. */
-  if(paid){
-    document.querySelectorAll('.paid-member').forEach(el => el.classList.remove('paid-member'));
-    document.getElementById('paymentStep').style.display='none';
-  }
-
-  if(statusData.plan === 'uchazeci'){
-    heading.textContent = paid ? 'Členství uchazeče je aktivní' : 'Čeká se na platbu';
+  if(error || !reqData){
+    if(heading) heading.textContent = 'Nemáš odeslanou žádost o ověření.';
+    applyGating(null, 'inactive');
     return;
   }
 
-  if(statusData.plan === 'kolegove'){
-    if(paid && !approved){
-      heading.textContent='Placení členství aktivní — čeká se na ověření';
-      lockOverlay.querySelector('.lockbadge').textContent='⏳ Ověření příslušnosti trvá přibližně 3 dny';
-      document.getElementById('policeVerificationInfo').style.display='';
-    }
+  applyGating(reqData.plan, reqData.subscription_status);
 
-    if(approved){
-      heading.textContent='Ověření dokončeno — poradna je odemčená';
-      document.querySelectorAll('.member-only').forEach(el => el.classList.remove('member-only'));
-      livePoradna.style.display='';
-      await loadPosts();
-      document.getElementById('policeVerificationInfo').style.display='none';
-    }
+  if(payStep){
+    payStep.style.display = '';
+    if(payText) payText.textContent = 'Platby zatím nejsou napojené (řeším živnost/IČO) — účet i obsah máš zatím zdarma v testovacím provozu.';
+    const btn = document.getElementById('paymentButton');
+    if(btn){ btn.disabled = false; btn.textContent = 'Info o platbě'; }
+  }
+
+  if(reqData.plan === 'uchazeci'){
+    if(heading) heading.textContent = 'Členství uchazeče je aktivní (testovací provoz, platby zatím neřešíme).';
+    return;
+  }
+
+  /* plan === 'kolegove' — přístup zatím řídí jen ruční schválení OEČ, ne platba */
+  if(reqData.status === 'approved'){
+    if(heading) heading.textContent = 'Poradna — přihlášen';
+    if(forumPreview) forumPreview.style.display = 'none';
+    if(livePoradna) livePoradna.style.display = '';
+    await loadPosts();
+  } else if(reqData.status === 'pending'){
+    if(heading) heading.textContent = 'Žádost čeká na ruční schválení';
+    if(lockOverlay) lockOverlay.querySelector('.lockbadge').textContent = '⏳ Ověření OEČ probíhá, zkus to za pár dní';
+  } else {
+    if(heading) heading.textContent = 'Žádost nebyla schválena';
   }
 }
 
+checkAccess();
+
+/* ===== NAČTENÍ A PŘIDÁVÁNÍ PŘÍSPĚVKŮ V PORADNĚ ===== */
 async function loadPosts(){
   const list = document.getElementById('livePostsList');
+  if(!list) return;
   const { data: posts, error } = await sb
     .from('poradna_posts')
-    .select('id,title,content,nickname,created_at')
+    .select('*')
     .order('created_at', { ascending: false });
 
   if(error){
-    list.innerHTML = '<div class="forumpost">Nepodařilo se načíst příspěvky.</div>';
+    list.innerHTML = `<div class="forumpost">Nepodařilo se načíst příspěvky: ${error.message}</div>`;
     return;
   }
   if(!posts || posts.length === 0){
-    list.innerHTML = '<div class="forumpost">Zatím tu nikdo nic nenapsal — buď první.</div>';
+    list.innerHTML = `<div class="forumpost">Zatím tu nikdo nic nenapsal — buď první.</div>`;
     return;
   }
-
   list.innerHTML = posts.map(p => `
     <div class="forumpost">
       <strong>${escapeHtml(p.title)}</strong>
@@ -1095,54 +1105,57 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
-document.getElementById('postForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const status = document.getElementById('postStatus');
-  status.className='regstatus show pending';
-  status.textContent='Odesílám…';
+const postFormEl = document.getElementById('postForm');
+if(postFormEl){
+  postFormEl.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const status = document.getElementById('postStatus');
+    status.className = 'regstatus show pending';
+    status.textContent = 'Odesílám…';
 
-  const { data: sessionData } = await sb.auth.getSession();
-  const user = sessionData.session ? sessionData.session.user : null;
-  if(!user){
-    status.className='regstatus show error';
-    status.textContent='Nejsi přihlášen.';
-    return;
-  }
+    const { data: sessionData } = await sb.auth.getSession();
+    const user = sessionData.session ? sessionData.session.user : null;
+    if(!user){
+      status.className = 'regstatus show error';
+      status.textContent = 'Nejsi přihlášen.';
+      return;
+    }
 
-  const title = document.getElementById('postTitle').value.trim();
-  const content = document.getElementById('postContent').value.trim();
-  if(!title || !content){
-    status.className='regstatus show error';
-    status.textContent='Vyplň nadpis i text.';
-    return;
-  }
+    const title = document.getElementById('postTitle').value.trim();
+    const content = document.getElementById('postContent').value.trim();
+    if(!title || !content){
+      status.className = 'regstatus show error';
+      status.textContent = 'Vyplň nadpis i text.';
+      return;
+    }
+    const nickname = 'Kolega_' + user.id.slice(0,4);
 
-  const { error } = await sb.from('poradna_posts').insert({
-    user_id: user.id,
-    title,
-    content
+    const { error } = await sb.from('poradna_posts').insert({
+      user_id: user.id, nickname, title, content
+    });
+
+    if(error){
+      status.className = 'regstatus show error';
+      status.textContent = 'Nepodařilo se přidat příspěvek: ' + error.message;
+      return;
+    }
+    status.className = 'regstatus show success';
+    status.textContent = 'Příspěvek přidán.';
+    e.target.reset();
+    await loadPosts();
   });
+}
 
-  if(error){
-    status.className='regstatus show error';
-    status.textContent='Nepodařilo se přidat příspěvek.';
-    return;
-  }
 
-  status.className='regstatus show success';
-  status.textContent='Příspěvek přidán.';
-  e.target.reset();
-  await loadPosts();
-});
-
-checkAccess();
-
-/* WAITLIST DEMO */
-document.getElementById('waitForm').addEventListener('submit',(e)=>{
-  e.preventDefault();
-  document.getElementById('waitStatus').textContent='Zapsáno. Ozvu se, jakmile bude platforma spuštěná.';
-  document.getElementById('waitEmail').value='';
-});
+/* WAITLIST DEMO (pokud sekce na stránce existuje) */
+const waitFormEl = document.getElementById('waitForm');
+if(waitFormEl){
+  waitFormEl.addEventListener('submit',(e)=>{
+    e.preventDefault();
+    document.getElementById('waitStatus').textContent='Zapsáno. Ozvu se, jakmile bude platforma spuštěná.';
+    document.getElementById('waitEmail').value='';
+  });
+}
 </script>
 
 </body>
