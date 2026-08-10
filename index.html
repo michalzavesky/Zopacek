@@ -310,8 +310,8 @@
       <p class="lead">Zopáček roste s tebou — nejdřív ti pomůže projít přijímačkami, pak ti ve službě dá po ruce nástroje a tabulky, co reálně potřebuješ, a nakonec prostor promluvit si s kolegy, co tím prošli taky.</p>
     </div>
     <div class="tierpills">
-      <a class="pill p1" href="#uchazeci">① Uchazeči — 199 Kč</a>
-      <a class="pill p2" href="#kolegove">② Kolegové ve službě — 99 Kč</a>
+      <a class="pill p1" href="#uchazeci">① Uchazeči — 199 Kč / měsíc</a>
+      <a class="pill p2" href="#kolegove">② Kolegové ve službě — 99 Kč / měsíc</a>
       <a class="pill p3" href="#poradna">③ Poradna — pro ověřené policisty</a>
     </div>
   </div>
@@ -320,7 +320,7 @@
 <!-- ============ TIER 1: UCHAZEČI ============ -->
 <section id="uchazeci" class="wrap tiersection">
   <div class="sechead">
-    <span class="tiernum t1">Tier 1 · 199 Kč jednorázově</span>
+    <span class="tiernum t1">Tier 1 · 199 Kč / měsíc</span>
     <h2>Pro ty, co se teprve hlásí</h2>
     <p>Vše, co potřebuješ vědět o cestě od podání přihlášky po nástup — testy ze zákonů, fyzičku, psychotesty i to, co tě čeká na ZOP.</p>
   </div>
@@ -407,7 +407,7 @@
 <!-- ============ TIER 2: KOLEGOVÉ ============ -->
 <section id="kolegove" class="wrap tiersection">
   <div class="sechead">
-    <span class="tiernum t2">Tier 2 · 99 Kč jednorázově</span>
+    <span class="tiernum t2">Tier 2 · 99 Kč / měsíc</span>
     <h2>Pro kolegy, co už slouží</h2>
     <p>Praktické nástroje a tabulky do služby — ke stažení, vytisknutí, nebo rovnou v mobilu na směně.</p>
   </div>
@@ -548,7 +548,7 @@
         <label for="regOec">OEČ</label>
         <input type="text" id="regOec" required>
         <label for="regPassword">Zvol si heslo</label>
-        <input type="password" id="regPassword" minlength="6" required>
+        <input type="password" id="regPassword" minlength="8" required>
         <label for="regJmeno">Jméno a příjmení</label>
         <input type="text" id="regJmeno" required>
         <label for="regUtvar">Útvar / oddělení</label>
@@ -605,13 +605,14 @@
 <!-- ============ CENÍK ============ -->
 <section id="cena" class="wrap tiersection">
   <div class="sechead">
-    <div class="eyebrow">Ceník</div>
-    <h2>Tři úrovně, jedna platforma</h2>
+    <div class="eyebrow">Měsíční členství</div>
+    <h2>Tři úrovně, jedno měsíční členství</h2>
+    <p style="color:var(--ink-soft); font-size:15.5px; margin-top:10px;">Členství se účtuje měsíčně. Přístup můžeš kdykoliv ukončit; žádná jednorázová doživotní platba.</p>
   </div>
   <div class="pricing">
     <div class="price-card">
       <h3>Uchazeči</h3>
-      <div class="price">199 Kč <span>jednorázově</span></div>
+      <div class="price">199 Kč <span>měsíčně</span></div>
       <ul>
         <li>Testy ze zákonů s vysvětlením</li>
         <li>Kalkulačky fyzických testů</li>
@@ -622,7 +623,7 @@
     </div>
     <div class="price-card featured">
       <h3>Kolegové ve službě</h3>
-      <div class="price">99 Kč <span>jednorázově</span></div>
+      <div class="price">99 Kč <span>měsíčně</span></div>
       <ul>
         <li>Fotodokumentační nástroj</li>
         <li>Tabulky rychloměru a alkoholu k tisku</li>
@@ -750,44 +751,55 @@ document.getElementById('regForm').addEventListener('submit', async (e)=>{
   status.className='regstatus show pending';
   status.textContent='Odesílám žádost…';
 
-  const oec = document.getElementById('regOec').value;
+  const oec = document.getElementById('regOec').value.trim();
   const password = document.getElementById('regPassword').value;
-  const jmeno = document.getElementById('regJmeno').value;
-  const utvar = document.getElementById('regUtvar').value;
+  const jmeno = document.getElementById('regJmeno').value.trim();
+  const utvar = document.getElementById('regUtvar').value.trim();
 
-  if(!oec.trim()){
-    status.textContent = 'Vyplň OEČ.';
+  if(!oec || !jmeno || !utvar){
+    status.textContent='Vyplň všechna pole.';
     return;
   }
+  if(password.length < 8){
+    status.textContent='Heslo musí mít alespoň 8 znaků.';
+    return;
+  }
+
   const internalId = oecToInternalId(oec);
 
-  const { data, error } = await sb.auth.signUp({ email: internalId, password });
+  /* Heslo řeší výhradně Supabase Auth. Nikdy ho neposíláme do vlastní tabulky. */
+  const { data, error } = await sb.auth.signUp({
+    email: internalId,
+    password
+  });
+
   if(error){
-    if(error.message.includes('already registered')){
-      status.textContent = 'Pod tímhle OEČ už je účet založený. Zkus se rovnou přihlásit.';
+    if(/already registered|already exists/i.test(error.message)){
+      status.textContent='Pod tímhle OEČ už účet existuje. Zkus se přihlásit.';
     } else {
-      status.textContent = 'Nepodařilo se založit účet: ' + error.message;
+      status.textContent='Nepodařilo se založit účet. Zkontroluj údaje a zkus to znovu.';
     }
     return;
   }
 
+  /* Pokud je v Auth zapnuté potvrzení e-mailu, data.session může být null.
+     U interního identifikátoru bez skutečného e-mailu proto musí být Confirm email vypnuté. */
   if(!data.session){
-    status.textContent = 'Účet založen, ale nejsi ještě přihlášený — zkontroluj, že je v Supabase vypnuté potvrzování e-mailu (Authentication → Providers → Email → Confirm email).';
+    status.textContent='Účet byl vytvořen, ale přihlášení čeká na potvrzení účtu. V Supabase vypni Confirm email pro tento interní login.';
     return;
   }
 
-  const userId = data.session.user.id;
-
-  const { error: insertError } = await sb.from('verification_requests').insert({
-    user_id: userId, jmeno, oec, utvar
+  const { error: requestError } = await sb.functions.invoke('create-verification-request', {
+    body: { jmeno, oec, utvar }
   });
 
-  if(insertError){
-    status.textContent = 'Účet založen, ale žádost se neuložila: ' + insertError.message;
+  if(requestError){
+    /* Účet už existuje, ale citlivá žádost se nevytvořila. Heslo zde znovu nikam neukládáme. */
+    status.textContent='Účet byl vytvořen, ale žádost o ověření se nepodařilo odeslat. Přihlas se znovu a zkus žádost odeslat.';
     return;
   }
 
-  status.textContent = 'Žádost odeslána — čeká na ruční schválení. Pokud je potřeba, potvrď i e-mail. Po ověření se zadané jméno, OEČ a útvar trvale smažou.';
+  status.textContent='Žádost odeslána — čeká na ruční schválení. Po schválení se ověřovací údaje automaticky smažou.';
   e.target.reset();
 });
 
@@ -804,16 +816,16 @@ document.getElementById('loginForm').addEventListener('submit', async (e)=>{
   status.className='regstatus show pending';
   status.textContent='Přihlašuji…';
 
-  const oec = document.getElementById('loginOec').value;
+  const oec = document.getElementById('loginOec').value.trim();
   const password = document.getElementById('loginPassword').value;
   const internalId = oecToInternalId(oec);
 
-  const { data, error } = await sb.auth.signInWithPassword({ email: internalId, password });
+  const { error } = await sb.auth.signInWithPassword({ email: internalId, password });
   if(error){
-    status.textContent = 'Přihlášení se nezdařilo: ' + error.message;
+    status.textContent='Přihlášení se nezdařilo. Zkontroluj OEČ a heslo.';
     return;
   }
-  status.textContent = 'Přihlášeno.';
+  status.textContent='Přihlášeno.';
   await checkApprovalAndLoadPoradna();
 });
 
@@ -823,8 +835,8 @@ async function checkApprovalAndLoadPoradna(){
   const user = sessionData.session ? sessionData.session.user : null;
   if(!user) return;
 
-  const { data: reqData } = await sb
-    .from('verification_requests')
+  const { data: statusData, error: statusError } = await sb
+    .from('verification_status')
     .select('status')
     .eq('user_id', user.id)
     .maybeSingle();
@@ -835,22 +847,27 @@ async function checkApprovalAndLoadPoradna(){
   const livePoradna = document.getElementById('livePoradna');
   const loginCard = document.getElementById('loginCard');
 
-  if(!reqData){
-    heading.textContent = 'Nemáš odeslanou žádost o ověření.';
+  if(statusError){
+    heading.textContent='Nepodařilo se ověřit stav účtu.';
     return;
   }
 
-  if(reqData.status === 'approved'){
-    heading.textContent = 'Poradna — přihlášen';
-    forumPreview.style.display = 'none';
-    livePoradna.style.display = '';
-    loginCard.style.display = 'none';
+  if(!statusData){
+    heading.textContent='Nemáš odeslanou žádost o ověření.';
+    return;
+  }
+
+  if(statusData.status === 'approved'){
+    heading.textContent='Poradna — přihlášen';
+    forumPreview.style.display='none';
+    livePoradna.style.display='';
+    loginCard.style.display='none';
     await loadPosts();
-  } else if(reqData.status === 'pending'){
-    heading.textContent = 'Žádost čeká na schválení';
-    lockOverlay.querySelector('.lockbadge').textContent = '⏳ Žádost se ověřuje, zkus to za pár dní';
+  } else if(statusData.status === 'pending'){
+    heading.textContent='Žádost čeká na schválení';
+    lockOverlay.querySelector('.lockbadge').textContent='⏳ Žádost se ověřuje, zkus to později';
   } else {
-    heading.textContent = 'Žádost nebyla schválena';
+    heading.textContent='Žádost nebyla schválena';
   }
 }
 
@@ -858,15 +875,15 @@ async function loadPosts(){
   const list = document.getElementById('livePostsList');
   const { data: posts, error } = await sb
     .from('poradna_posts')
-    .select('*')
+    .select('id,title,content,nickname,created_at')
     .order('created_at', { ascending: false });
 
   if(error){
-    list.innerHTML = `<div class="forumpost">Nepodařilo se načíst příspěvky: ${error.message}</div>`;
+    list.innerHTML = '<div class="forumpost">Nepodařilo se načíst příspěvky.</div>';
     return;
   }
   if(!posts || posts.length === 0){
-    list.innerHTML = `<div class="forumpost">Zatím tu nikdo nic nenapsal — buď první.</div>`;
+    list.innerHTML = '<div class="forumpost">Zatím tu nikdo nic nenapsal — buď první.</div>';
     return;
   }
   list.innerHTML = posts.map(p => `
@@ -880,7 +897,7 @@ async function loadPosts(){
 
 function escapeHtml(str){
   const div = document.createElement('div');
-  div.textContent = str;
+  div.textContent = String(str ?? '');
   return div.innerHTML;
 }
 
@@ -892,21 +909,24 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
 
   const { data: sessionData } = await sb.auth.getSession();
   const user = sessionData.session ? sessionData.session.user : null;
-  if(!user){ status.textContent = 'Nejsi přihlášen.'; return; }
+  if(!user){ status.textContent='Nejsi přihlášen.'; return; }
 
-  const title = document.getElementById('postTitle').value;
-  const content = document.getElementById('postContent').value;
-  const nickname = 'Kolega_' + user.id.slice(0,4);
+  const title = document.getElementById('postTitle').value.trim();
+  const content = document.getElementById('postContent').value.trim();
+  if(!title || !content){ status.textContent='Vyplň nadpis i text.'; return; }
 
+  /* RLS na serveru vynutí, že INSERT smí udělat pouze schválený uživatel. */
   const { error } = await sb.from('poradna_posts').insert({
-    user_id: user.id, nickname, title, content
+    user_id: user.id,
+    title,
+    content
   });
 
   if(error){
-    status.textContent = 'Nepodařilo se přidat příspěvek: ' + error.message;
+    status.textContent='Nepodařilo se přidat příspěvek.';
     return;
   }
-  status.textContent = 'Příspěvek přidán.';
+  status.textContent='Příspěvek přidán.';
   e.target.reset();
   await loadPosts();
 });
