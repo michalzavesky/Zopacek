@@ -310,8 +310,8 @@
       <p class="lead">Zopáček roste s tebou — nejdřív ti pomůže projít přijímačkami, pak ti ve službě dá po ruce nástroje a tabulky, co reálně potřebuješ, a nakonec prostor promluvit si s kolegy, co tím prošli taky.</p>
     </div>
     <div class="tierpills">
-      <a class="pill p1" href="#uchazeci">① Uchazeči — 199 Kč / měsíc</a>
-      <a class="pill p2" href="#kolegove">② Kolegové ve službě — 99 Kč / měsíc</a>
+      <a class="pill p1" href="#uchazeci">① Uchazeči — 199 Kč</a>
+      <a class="pill p2" href="#kolegove">② Kolegové ve službě — 99 Kč</a>
       <a class="pill p3" href="#poradna">③ Poradna — pro ověřené policisty</a>
     </div>
   </div>
@@ -320,7 +320,7 @@
 <!-- ============ TIER 1: UCHAZEČI ============ -->
 <section id="uchazeci" class="wrap tiersection">
   <div class="sechead">
-    <span class="tiernum t1">Tier 1 · 199 Kč / měsíc</span>
+    <span class="tiernum t1">Tier 1 · 199 Kč jednorázově</span>
     <h2>Pro ty, co se teprve hlásí</h2>
     <p>Vše, co potřebuješ vědět o cestě od podání přihlášky po nástup — testy ze zákonů, fyzičku, psychotesty i to, co tě čeká na ZOP.</p>
   </div>
@@ -407,7 +407,7 @@
 <!-- ============ TIER 2: KOLEGOVÉ ============ -->
 <section id="kolegove" class="wrap tiersection">
   <div class="sechead">
-    <span class="tiernum t2">Tier 2 · 99 Kč / měsíc</span>
+    <span class="tiernum t2">Tier 2 · 99 Kč jednorázově</span>
     <h2>Pro kolegy, co už slouží</h2>
     <p>Praktické nástroje a tabulky do služby — ke stažení, vytisknutí, nebo rovnou v mobilu na směně.</p>
   </div>
@@ -605,14 +605,13 @@
 <!-- ============ CENÍK ============ -->
 <section id="cena" class="wrap tiersection">
   <div class="sechead">
-    <div class="eyebrow">Měsíční členství</div>
-    <h2>Tři úrovně, jedno měsíční členství</h2>
-    <p style="color:var(--ink-soft); font-size:15.5px; margin-top:10px;">Členství se účtuje měsíčně. Přístup můžeš kdykoliv ukončit; žádná jednorázová doživotní platba.</p>
+    <div class="eyebrow">Ceník</div>
+    <h2>Tři úrovně, jedna platforma</h2>
   </div>
   <div class="pricing">
     <div class="price-card">
       <h3>Uchazeči</h3>
-      <div class="price">199 Kč <span>měsíčně</span></div>
+      <div class="price">199 Kč <span>jednorázově</span></div>
       <ul>
         <li>Testy ze zákonů s vysvětlením</li>
         <li>Kalkulačky fyzických testů</li>
@@ -623,7 +622,7 @@
     </div>
     <div class="price-card featured">
       <h3>Kolegové ve službě</h3>
-      <div class="price">99 Kč <span>měsíčně</span></div>
+      <div class="price">99 Kč <span>jednorázově</span></div>
       <ul>
         <li>Fotodokumentační nástroj</li>
         <li>Tabulky rychloměru a alkoholu k tisku</li>
@@ -760,42 +759,66 @@ document.getElementById('regForm').addEventListener('submit', async (e)=>{
     status.textContent='Vyplň všechna pole.';
     return;
   }
-  if(password.length < 8){
-    status.textContent='Heslo musí mít alespoň 8 znaků.';
+  if(password.length < 12){
+    status.textContent='Heslo musí mít alespoň 12 znaků.';
     return;
   }
 
   const internalId = oecToInternalId(oec);
 
   /* Heslo řeší výhradně Supabase Auth. Nikdy ho neposíláme do vlastní tabulky. */
-  const { data, error } = await sb.auth.signUp({
+  let session = null;
+
+  /* Nejprve vytvoříme Auth účet. Pokud už existuje (např. po dřívějším
+     neúspěšném odeslání žádosti), přihlásíme se stejným OEČ + heslem a
+     dovolíme dokončit žádost. Heslo se nikam do vlastní DB neukládá. */
+  const { data: signUpData, error: signUpError } = await sb.auth.signUp({
     email: internalId,
     password
   });
 
-  if(error){
-    if(/already registered|already exists/i.test(error.message)){
-      status.textContent='Pod tímhle OEČ už účet existuje. Zkus se přihlásit.';
+  if(signUpError){
+    if(/already registered|already exists/i.test(signUpError.message)){
+      const { data: loginData, error: loginError } = await sb.auth.signInWithPassword({
+        email: internalId,
+        password
+      });
+
+      if(loginError){
+        status.textContent='Pod tímhle OEČ už účet existuje. Pokud je to tvůj účet, zkontroluj heslo.';
+        return;
+      }
+      session = loginData.session;
     } else {
       status.textContent='Nepodařilo se založit účet. Zkontroluj údaje a zkus to znovu.';
+      return;
     }
+  } else {
+    session = signUpData.session;
+  }
+
+  /* Bez potvrzení e-mailu musí Supabase vrátit session hned. */
+  if(!session){
+    status.textContent='Účet byl vytvořen, ale není aktivní session. V Supabase vypni Authentication → Providers → Email → Confirm email.';
     return;
   }
 
-  /* Pokud je v Auth zapnuté potvrzení e-mailu, data.session může být null.
-     U interního identifikátoru bez skutečného e-mailu proto musí být Confirm email vypnuté. */
-  if(!data.session){
-    status.textContent='Účet byl vytvořen, ale přihlášení čeká na potvrzení účtu. V Supabase vypni Confirm email pro tento interní login.';
-    return;
-  }
-
-  const { error: requestError } = await sb.functions.invoke('create-verification-request', {
-    body: { jmeno, oec, utvar }
+  /* Žádost nyní ukládá bezpečná SECURITY DEFINER funkce přímo v Postgresu.
+     Frontend nemá přímý INSERT do citlivé tabulky. */
+  const { data: requestData, error: requestError } = await sb.rpc('submit_verification_request', {
+    p_jmeno: jmeno,
+    p_oec: oec,
+    p_utvar: utvar
   });
 
   if(requestError){
-    /* Účet už existuje, ale citlivá žádost se nevytvořila. Heslo zde znovu nikam neukládáme. */
-    status.textContent='Účet byl vytvořen, ale žádost o ověření se nepodařilo odeslat. Přihlas se znovu a zkus žádost odeslat.';
+    console.error('submit_verification_request:', requestError);
+    status.textContent='Účet je vytvořený, ale žádost se nepodařilo uložit. Zkus to prosím ještě jednou.';
+    return;
+  }
+
+  if(requestData && requestData.status === 'exists'){
+    status.textContent='Žádost už byla pro toto OEČ odeslána. Přihlas se a zkontroluj její stav.';
     return;
   }
 
