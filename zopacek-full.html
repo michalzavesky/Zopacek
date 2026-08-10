@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zopáček — pro uchazeče i sloužící policisty</title>
+<meta name="description" content="Příprava na přijímací řízení k Policii ČR a nástroje pro sloužící policisty — testy, kalkulačky, tabulky ke stažení, anonymní poradna.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fcfbf8; --bg-soft:#f1f2ee;
+    --ink:#181d21; --ink-soft:#565f5f; --line:#e3e2da;
+    --blue:#12395e; --blue-bright:#1c5590; --blue-soft:#e8eef4;
+    --lime:#c8e000; --lime-dark:#7c8f00;
+    --ok:#2f6b39; --err:#a63d26; --warn:#8a5a12; --warn-soft:#fbf1de;
+    --shadow-sm:0 1px 2px rgba(24,29,33,0.04), 0 1px 1px rgba(24,29,33,0.03);
+    --shadow-md:0 4px 14px rgba(24,29,33,0.06), 0 1px 3px rgba(24,29,33,0.05);
+    --shadow-lg:0 12px 32px rgba(24,29,33,0.09), 0 2px 8px rgba(24,29,33,0.05);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;}
+  @media (prefers-reduced-motion: reduce){*{animation-duration:0.01ms !important;}}
+  a{color:var(--blue-bright);}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px;}
+  h1,h2,h3{font-weight:800; letter-spacing:-0.01em; color:var(--ink);}
+  .eyebrow{font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue-bright);}
+
+  /* prototype banner */
+  .protobanner{background:var(--warn-soft); color:var(--warn); font-size:13.5px; text-align:center; padding:9px 16px; border-bottom:1px solid #e9d9ae;}
+
+  .battenburg{
+    height:20px;
+    background:
+      repeating-linear-gradient(45deg, var(--blue) 0 16px, #ffffff 16px 32px),
+      repeating-linear-gradient(-45deg, var(--blue) 0 16px, #ffffff 16px 32px);
+    background-blend-mode:multiply; position:relative;
+  }
+  .battenburg::after{content:""; position:absolute; left:0; right:0; bottom:-4px; height:4px; background:var(--lime);}
+
+  header{position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.97); border-bottom:1px solid var(--line);}
+  nav{display:flex; align-items:center; justify-content:space-between; padding:14px 0; gap:12px;}
+  .logo{font-weight:800; font-size:20px; display:flex; align-items:center; gap:9px; white-space:nowrap;}
+  .badge{width:26px; height:26px; border-radius:6px; background:var(--blue); display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:800;}
+  .navlinks{display:flex; gap:22px; font-size:14.5px; font-weight:500;}
+  .navlinks a{text-decoration:none; color:var(--ink-soft);}
+  .navlinks a:hover{color:var(--ink);}
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{outline:2px solid var(--blue-bright); outline-offset:2px;}
+  .navcta{font-size:14px; font-weight:600; background:var(--blue); color:#fff; padding:9px 16px; text-decoration:none; border-radius:6px; white-space:nowrap;}
+  .navcta:hover{background:var(--blue-bright);}
+
+  .hero{padding:56px 0 44px; background:var(--bg-soft);}
+  .hero .inner{max-width:720px;}
+  .hero h1{font-size:36px; line-height:1.16; margin:14px 0 16px;}
+  .hero h1 .accent{color:var(--blue-bright);}
+  .hero p.lead{font-size:17px; color:var(--ink-soft); max-width:56ch; margin-bottom:22px;}
+  .hero-ctas{display:flex; gap:12px; flex-wrap:wrap;}
+  .btn-primary{background:var(--blue); color:#fff; font-weight:600; padding:13px 22px; text-decoration:none; font-size:15px; border-radius:8px; border:none; cursor:pointer; font-family:'Inter',sans-serif; box-shadow:var(--shadow-sm); transition:background .15s ease, box-shadow .15s ease, transform .1s ease;}
+  .btn-primary:hover{background:var(--blue-bright); box-shadow:var(--shadow-md); transform:translateY(-1px);}
+  .btn-secondary{padding:13px 22px; text-decoration:none; font-size:15px; font-weight:600; color:var(--ink); border:1.5px solid var(--line); border-radius:8px; background:#fff; transition:border-color .15s ease, color .15s ease, transform .1s ease;}
+  .btn-secondary:hover{border-color:var(--blue-bright); color:var(--blue-bright); transform:translateY(-1px);}
+
+  /* tier switcher pills */
+  .tierpills{display:flex; gap:10px; margin-top:26px; flex-wrap:nowrap;}
+  .pill{flex:0 1 auto; white-space:nowrap;}
+  .pill{font-size:13.5px; font-weight:600; padding:8px 14px; border-radius:20px; text-decoration:none; border:1.5px solid var(--line); color:var(--ink-soft); background:#fff;}
+  .pill.p1{border-color:var(--blue); color:var(--blue);}
+  .pill.p2{border-color:var(--lime-dark); color:var(--lime-dark);}
+  .pill.p3{border-color:var(--err); color:var(--err);}
+
+  section{padding:56px 0;}
+  .tiersection{border-top:1px solid var(--line);}
+  .sechead{margin-bottom:32px; max-width:64ch;}
+  .sechead .tiernum{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; padding:4px 10px; border-radius:5px; margin-bottom:10px;}
+  .tiernum.t1{background:var(--blue-soft); color:var(--blue);}
+  .tiernum.t2{background:#f2f6d9; color:var(--lime-dark);}
+  .tiernum.t3{background:#f8e6e1; color:var(--err);}
+  .sechead h2{font-size:27px; margin-top:6px;}
+  .sechead p{color:var(--ink-soft); font-size:15.5px; margin-top:10px;}
+
+  .modules{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+  .mod{background:#fff; border:1px solid var(--line); border-radius:12px; padding:24px 22px; box-shadow:var(--shadow-sm); transition:box-shadow .2s ease, transform .2s ease;}
+  .mod:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
+  .mod .mod-icon{width:40px; height:40px; border-radius:9px; background:var(--blue-soft); color:var(--blue); display:flex; align-items:center; justify-content:center; margin-bottom:14px; font-size:18px; font-weight:700;}
+  .mod h3{font-size:16.5px; margin-bottom:7px;}
+  .mod p{font-size:14px; color:var(--ink-soft);}
+  .placeholder-tag{display:inline-block; margin-top:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; color:var(--warn); background:var(--warn-soft); padding:3px 8px; border-radius:4px;}
+
+  /* demo card reused */
+  .demo-card{background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:22px; box-shadow:var(--shadow-md);}
+  .demo-head{background:var(--blue); color:#fff; padding:14px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;}
+  .demo-head.alt{background:var(--ink);}
+  .demo-head .t{font-weight:700; font-size:14.5px;}
+  .demo-head .s{font-size:12.5px; color:rgba(255,255,255,0.75);}
+  .demo-body{padding:24px;}
+  .q{font-size:16.5px; font-weight:600; margin-bottom:14px;}
+  .opts{display:flex; flex-direction:column; gap:9px; margin-bottom:16px;}
+  .opt{text-align:left; padding:13px 16px; border:1.5px solid var(--line); border-radius:9px; background:#fff; font-size:15px; font-family:'Inter',sans-serif; cursor:pointer; color:var(--ink); transition:border-color .15s ease, background .15s ease, transform .1s ease;}
+  .opt:hover{border-color:var(--blue-bright); background:var(--blue-soft);}
+  .opt:active{transform:scale(0.99);}
+  .opt.correct{border-color:var(--ok); background:#eef7ef;}
+  .opt.wrong{border-color:var(--err); background:#faeeec;}
+  .feedback{font-size:14px; font-weight:600; margin-bottom:12px; min-height:18px;}
+  .feedback.ok{color:var(--ok);} .feedback.err{color:var(--err);}
+  .quiznav{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;}
+  .quizprogress{font-size:13px; color:var(--ink-soft);}
+  .btn-next{background:var(--ink); color:#fff; border:none; padding:10px 18px; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;}
+  .btn-next:hover{background:var(--blue);} .btn-next:disabled{opacity:0.4; cursor:not-allowed;}
+  .demo-note{font-size:12.5px; color:var(--ink-soft); padding:12px 24px; background:var(--bg-soft); border-top:1px solid var(--line);}
+
+  .calc-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:24px;}
+  .calc-field label{display:block; font-size:13.5px; font-weight:600; margin-bottom:6px;}
+  .calc-field input, .calc-field select{width:100%; padding:12px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15.5px; font-family:'Inter',sans-serif; background:var(--bg-soft); color:var(--ink); box-shadow:inset 0 1px 2px rgba(24,29,33,0.04);}
+  .calc-field input:hover, .calc-field select:hover{border-color:var(--blue-bright);}
+  .calc-field input:focus, .calc-field select:focus{outline:none; border-color:var(--blue-bright); background:#fff; box-shadow:0 0 0 3px var(--blue-soft);}
+  .calc-result{grid-column:1/-1; background:var(--bg-soft); border-radius:8px; padding:16px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+  .calc-result .points{font-size:24px; font-weight:800; color:var(--blue);}
+  .calc-result .label{font-size:13px; color:var(--ink-soft);}
+
+  /* printable tables */
+  .tablewrap{padding:16px 24px 24px; overflow-x:auto;}
+  table.reftable{width:100%; min-width:420px; border-collapse:collapse; font-size:14.5px;}
+  table.reftable th{text-align:left; background:var(--bg-soft); padding:10px 14px; font-size:12.5px; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft); border-bottom:1px solid var(--line);}
+  table.reftable td{padding:11px 14px; border-bottom:1px solid var(--line);}
+  .tabletools{display:flex; justify-content:flex-end; padding:16px 24px 0;}
+  .print-btn{display:inline-flex; align-items:center; gap:8px; background:var(--ink); color:#fff; border:none; padding:10px 18px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;}
+  .print-btn:hover{background:var(--blue);}
+  .verify-note{background:var(--warn-soft); color:var(--warn); font-size:13px; padding:12px 24px; border-top:1px solid #e9d9ae; font-weight:600;}
+
+  /* tools list (kolegove) */
+  .toollist{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .tool{background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px; box-shadow:var(--shadow-sm); transition:box-shadow .2s ease, transform .2s ease;}
+  .tool:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
+  .tool h3{font-size:16.5px; margin-bottom:8px; display:flex; align-items:center; gap:8px;}
+  .tool p{font-size:14px; color:var(--ink-soft); margin-bottom:12px;}
+  .tool .dl{font-size:13.5px; font-weight:600; color:var(--blue-bright); text-decoration:none;}
+
+  /* poradna */
+  .poradna-flow{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  .flowcard{background:#fff; border:1px solid var(--line); border-radius:14px; padding:26px; box-shadow:var(--shadow-sm);}
+  .flowcard h3{font-size:17px; margin-bottom:12px;}
+  .flowsteps{list-style:none; counter-reset:step; margin-bottom:8px;}
+  .flowsteps li{counter-increment:step; padding-left:34px; position:relative; margin-bottom:14px; font-size:14.5px; color:var(--ink-soft);}
+  .flowsteps li::before{content:counter(step); position:absolute; left:0; top:-1px; width:22px; height:22px; border-radius:50%; background:var(--blue-soft); color:var(--blue); font-size:12.5px; font-weight:700; display:flex; align-items:center; justify-content:center;}
+  .privacybox{background:var(--blue-soft); border-radius:8px; padding:16px 18px; font-size:13.5px; color:var(--blue); margin-top:14px;}
+
+  .regform label{display:block; font-size:13.5px; font-weight:600; margin-bottom:6px; margin-top:14px;}
+  .regform label:first-child{margin-top:0;}
+  .regform input, .regform select{width:100%; padding:12px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); color:var(--ink); box-shadow:inset 0 1px 2px rgba(24,29,33,0.04);}
+  .regform input:hover, .regform select:hover{border-color:var(--blue-bright);}
+  .regform input::placeholder{color:#8a9088;}
+  .regform input:focus, .regform select:focus{outline:none; border-color:var(--blue-bright); background:#fff; box-shadow:0 0 0 3px var(--blue-soft);}
+  .regform button{margin-top:18px; width:100%; background:var(--blue); color:#fff; font-weight:700; border:none; padding:13px; border-radius:8px; font-size:15px; cursor:pointer; font-family:'Inter',sans-serif;}
+  .regform button:hover{background:var(--blue-bright);}
+  .regstatus{margin-top:14px; font-size:14px; font-weight:600; padding:12px 14px; border-radius:8px; display:none;}
+  .regstatus.show{display:block;}
+  .regstatus.pending{background:var(--warn-soft); color:var(--warn);}
+
+  .forumpreview{position:relative; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff; box-shadow:var(--shadow-sm);}
+  .forumpost{padding:16px 20px; border-bottom:1px solid var(--line); font-size:14.5px;}
+  .forumpost .meta{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+  .forumpost:last-child{border-bottom:none;}
+  .lockoverlay{position:absolute; inset:0; background:linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.97) 60%); display:flex; align-items:flex-end; justify-content:center; padding-bottom:26px;}
+  .lockbadge{background:var(--ink); color:#fff; font-size:13.5px; font-weight:600; padding:11px 20px; border-radius:8px;}
+
+  .pricing{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .price-card{border:1.5px solid var(--line); border-radius:14px; padding:26px 24px; background:#fff; box-shadow:var(--shadow-sm); transition:box-shadow .2s ease, transform .2s ease;}
+  .price-card:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
+  .price-card.featured{border-color:var(--blue); position:relative; box-shadow:var(--shadow-lg);}
+  .price-card.featured::before{content:"Nejoblíbenější"; position:absolute; top:-12px; left:24px; background:var(--blue); color:#fff; font-size:11px; font-weight:700; padding:4px 11px; border-radius:20px;}
+  .price-card h3{font-size:16.5px; margin-bottom:5px;}
+  .price-card .price{font-size:28px; font-weight:800; margin:12px 0 4px;}
+  .price-card .price span{font-size:13px; font-weight:500; color:var(--ink-soft);}
+  .price-card ul{list-style:none; margin:14px 0 18px; font-size:13.5px; color:var(--ink-soft);}
+  .price-card li{padding-left:20px; position:relative; margin-bottom:8px;}
+  .price-card li::before{content:"✓"; position:absolute; left:0; color:var(--ok); font-weight:700;}
+
+  .waitlist{background:linear-gradient(135deg, var(--blue) 0%, var(--blue-bright) 100%); border-radius:16px; padding:36px 32px; color:#fff; box-shadow:var(--shadow-lg);}
+  .waitlist h2{color:#fff; font-size:24px;}
+  .waitlist p{color:rgba(255,255,255,0.8); margin-top:10px; font-size:15px; max-width:56ch;}
+  .waitform{display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;}
+  .waitform input{flex:1; min-width:220px; padding:12px 15px; border-radius:6px; border:none; font-size:15px; font-family:'Inter',sans-serif;}
+  .waitform button{background:var(--lime); color:var(--ink); font-weight:700; border:none; padding:12px 20px; border-radius:6px; cursor:pointer; font-size:14.5px; font-family:'Inter',sans-serif;}
+  .waitform button:hover{background:#dcf03d;}
+  .waitstatus{margin-top:12px; font-size:13.5px; font-weight:600;}
+
+  footer{border-top:1px solid var(--line); padding:24px 0; font-size:13px; color:var(--ink-soft); background:var(--bg-soft);}
+  footer .wrap{display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+
+  @media print{
+    header, .protobanner, .battenburg, .hero, .tierpills, nav, footer, .print-btn, .demo-note, section:not(.printonly){display:none !important;}
+  }
+
+  @media (max-width:860px){
+    body{font-size:15.5px;}
+    .wrap{padding:0 18px;}
+    .navlinks{display:none;}
+    .logo{font-size:18px;}
+    .navcta{padding:8px 13px; font-size:13px;}
+
+    .hero{padding:36px 0 32px;}
+    .hero h1{font-size:25px; line-height:1.22; margin:10px 0 12px;}
+    .hero p.lead{font-size:15px; margin-bottom:18px;}
+    .hero-ctas{flex-direction:column; align-items:stretch;}
+    .hero-ctas a{text-align:center;}
+    .tierpills{gap:9px; flex-direction:column; flex-wrap:nowrap; margin-top:20px;}
+    .pill{font-size:13.5px; padding:11px 14px; text-align:center; width:100%;}
+
+    section{padding:38px 0;}
+    .sechead{margin-bottom:22px;}
+    .sechead h2{font-size:21px;}
+    .sechead p{font-size:14px;}
+    .tiernum{font-size:11px;}
+
+    .modules{grid-template-columns:1fr; gap:14px;}
+    .mod{padding:20px;}
+    .mod h3{font-size:15.5px;}
+    .mod p{font-size:13.5px;}
+
+    .demo-head{padding:13px 18px;}
+    .demo-head .t{font-size:13.5px;}
+    .demo-body{padding:18px;}
+    .q{font-size:15.5px;}
+    .opt{padding:12px 14px; font-size:14.5px;}
+    .demo-note{padding:11px 18px; font-size:12px;}
+
+    .calc-grid{grid-template-columns:1fr; padding:18px; gap:14px;}
+    .calc-result .points{font-size:21px;}
+
+    .tabletools{padding:14px 18px 0; justify-content:stretch;}
+    .print-btn{width:100%; justify-content:center; padding:12px;}
+    .tablewrap{padding:14px 18px 18px;}
+    table.reftable{font-size:13.5px; min-width:380px;}
+    .verify-note{padding:11px 18px; font-size:12px;}
+
+    .toollist{grid-template-columns:1fr; gap:14px;}
+    .tool{padding:18px;}
+    .tool h3{font-size:15.5px;}
+
+    .poradna-flow{grid-template-columns:1fr; gap:16px;}
+    .flowcard{padding:20px;}
+    .flowcard h3{font-size:16px;}
+    .flowsteps li{font-size:13.5px;}
+    .privacybox{font-size:12.5px; padding:13px 15px;}
+    .regform button{padding:12px;}
+
+    .forumpost{padding:14px 16px; font-size:13.5px;}
+
+    .pricing{grid-template-columns:1fr; gap:14px;}
+    .price-card{padding:22px 20px;}
+    .price-card .price{font-size:25px;}
+    .price-card.featured::before{top:-11px; left:20px; font-size:10.5px;}
+
+    .waitlist{padding:26px 22px; border-radius:14px;}
+    .waitlist h2{font-size:20px;}
+    .waitlist p{font-size:14px;}
+    .waitform{flex-direction:column;}
+    .waitform input, .waitform button{width:100%;}
+
+    footer .wrap{flex-direction:column; text-align:center;}
+  }
+
+  @media (max-width:400px){
+    .hero h1{font-size:22px;}
+    .sechead h2{font-size:19px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="protobanner">Pracovní verze — obsah, čísla a tabulky jsou ukázkové a je potřeba je před spuštěním nahradit ověřenými daty.</div>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <div class="logo"><span class="badge">Z</span> Zopáček</div>
+      <div class="navlinks">
+        <a href="#uchazeci">Uchazeči</a>
+        <a href="#kolegove">Kolegové</a>
+        <a href="#poradna">Poradna</a>
+        <a href="#cena">Ceník</a>
+      </div>
+      <a class="navcta" href="#cena">Ceník</a>
+    </nav>
+  </div>
+</header>
+
+<div class="battenburg"></div>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="inner">
+      <div class="eyebrow">Pro uchazeče i sloužící policisty</div>
+      <h1>Od prvního testu po každodenní <span class="accent">službu.</span></h1>
+      <p class="lead">Zopáček roste s tebou — nejdřív ti pomůže projít přijímačkami, pak ti ve službě dá po ruce nástroje a tabulky, co reálně potřebuješ, a nakonec prostor promluvit si s kolegy, co tím prošli taky.</p>
+    </div>
+    <div class="tierpills">
+      <a class="pill p1" href="#uchazeci">① Uchazeči — 199 Kč</a>
+      <a class="pill p2" href="#kolegove">② Kolegové ve službě — 99 Kč</a>
+      <a class="pill p3" href="#poradna">③ Poradna — pro ověřené policisty</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIER 1: UCHAZEČI ============ -->
+<section id="uchazeci" class="wrap tiersection">
+  <div class="sechead">
+    <span class="tiernum t1">Tier 1 · 199 Kč jednorázově</span>
+    <h2>Pro ty, co se teprve hlásí</h2>
+    <p>Vše, co potřebuješ vědět o cestě od podání přihlášky po nástup — testy ze zákonů, fyzičku, psychotesty i to, co tě čeká na ZOP.</p>
+  </div>
+
+  <div class="modules" style="margin-bottom:30px;">
+    <div class="mod">
+      <div class="mod-icon">→</div>
+      <h3>Postup přijímacího řízení</h3>
+      <p>Časová osa od podání přihlášky po nástup: lékařská prohlídka, bezpečnostní pohovor, psychotesty, fyzické testy, ZOP.</p>
+      <span class="placeholder-tag">Doplnit tvůj reálný postup</span>
+    </div>
+    <div class="mod">
+      <div class="mod-icon">§</div>
+      <h3>Testy ze zákonů</h3>
+      <p>Otázky ze zákona o Policii ČR, o silničním provozu a dalších — s vysvětlením správné odpovědi.</p>
+      <span class="placeholder-tag">Ukázka níže</span>
+    </div>
+    <div class="mod">
+      <div class="mod-icon">◎</div>
+      <h3>Psychotesty</h3>
+      <p>Jaké typy testů tě čekají (pozornost, paměť, osobnostní dotazník) a jak se na ně dá reálně připravit.</p>
+      <span class="placeholder-tag">Doplnit popis testů</span>
+    </div>
+    <div class="mod">
+      <div class="mod-icon">✓</div>
+      <h3>Fyzické testy</h3>
+      <p>Kalkulačky bodování — Cooperův test, kliky, sedy-lehy — abys věděl, na čem přesně jsi před přijímačkami.</p>
+      <span class="placeholder-tag">Ukázka níže</span>
+    </div>
+    <div class="mod">
+      <div class="mod-icon">🎓</div>
+      <h3>Co tě čeká na ZOP</h3>
+      <p>Základní odborná příprava — jak dlouho trvá, co se tam učí, na co si dát pozor, jak vypadá běžný den.</p>
+      <span class="placeholder-tag">Doplnit tvoje zkušenosti</span>
+    </div>
+    <div class="mod">
+      <div class="mod-icon">★</div>
+      <h3>Orientační odhad ZJ / URNA</h3>
+      <p>Předběžný odhad bodového ohodnocení a přehled uznávaných výsledků pro specializovaná výběrová řízení.</p>
+      <span class="placeholder-tag">Doplnit reálná kritéria</span>
+    </div>
+  </div>
+
+  <!-- reused quiz demo -->
+  <div class="demo-card">
+    <div class="demo-head">
+      <span class="t">Ukázkový test — Zákon o Policii ČR</span>
+      <span class="s" id="quizProgress">Otázka 1 / 3</span>
+    </div>
+    <div class="demo-body">
+      <div class="q" id="quizQuestion"></div>
+      <div class="opts" id="quizOptions"></div>
+      <div class="feedback" id="quizFeedback"></div>
+      <div class="quiznav">
+        <span class="quizprogress" id="quizScore">Skóre: 0 / 0</span>
+        <button class="btn-next" id="quizNextBtn" disabled>Další otázka</button>
+      </div>
+    </div>
+    <div class="demo-note">Ukázkové otázky. Plná verze bude obsahovat stovky otázek napříč relevantními zákony.</div>
+  </div>
+
+  <div class="demo-card">
+    <div class="demo-head">
+      <span class="t">Kalkulačka — Cooperův test</span>
+      <span class="s">Ukázka bodování</span>
+    </div>
+    <div class="calc-grid">
+      <div class="calc-field">
+        <label for="coopDist">Uběhnutá vzdálenost za 12 minut (m)</label>
+        <input type="number" id="coopDist" placeholder="např. 2700" min="0" step="10">
+      </div>
+      <div class="calc-field">
+        <label for="coopGender">Pohlaví</label>
+        <select id="coopGender"><option value="m">Muž</option><option value="z">Žena</option></select>
+      </div>
+      <div class="calc-result">
+        <div><div class="points" id="coopPoints">— bodů</div><div class="label">Orientační odhad — nahradit oficiální tabulkou</div></div>
+      </div>
+    </div>
+    <div class="demo-note">Zjednodušená ukázková škála. V plné verzi napojit na aktuálně platná kritéria.</div>
+  </div>
+</section>
+
+<!-- ============ TIER 2: KOLEGOVÉ ============ -->
+<section id="kolegove" class="wrap tiersection">
+  <div class="sechead">
+    <span class="tiernum t2">Tier 2 · 99 Kč jednorázově</span>
+    <h2>Pro kolegy, co už slouží</h2>
+    <p>Praktické nástroje a tabulky do služby — ke stažení, vytisknutí, nebo rovnou v mobilu na směně.</p>
+  </div>
+
+  <div class="toollist" style="margin-bottom:26px;">
+    <div class="tool">
+      <h3>📷 Fotodokumentace</h3>
+      <p>Jednoduchý offline nástroj pro rychlou fotodokumentaci na místě — bez cloudu, funguje i bez signálu. Export do Wordu, 3 fotky na A4.</p>
+      <a class="dl" href="#">Stáhnout nástroj →</a>
+    </div>
+    <div class="tool">
+      <h3>🚗 Tabulka tolerance rychloměru</h3>
+      <p>Přehledná tabulka odečtů a tolerancí pro měření rychlosti, ke stažení jako PDF nebo k vytištění do auta.</p>
+      <a class="dl" href="#tab-rychlost">Zobrazit tabulku ↓</a>
+    </div>
+    <div class="tool">
+      <h3>🍺 Tabulka tolerance alkoholu</h3>
+      <p>Přehled hodnot a postupů při zjišťování alkoholu v krvi, orientační rozpis pro rychlé rozhodování v terénu.</p>
+      <a class="dl" href="#tab-alkohol">Zobrazit tabulku ↓</a>
+    </div>
+    <div class="tool">
+      <h3>💪 Fyzické tabulky</h3>
+      <p>Cooperův test, kliky, sedy-lehy a další — bodovací tabulky i pro průběžné testy během služby, ne jen přijímačky.</p>
+      <a class="dl" href="#">Zobrazit tabulky →</a>
+    </div>
+  </div>
+
+  <!-- printable tabulka rychlost -->
+  <div class="demo-card" id="tab-rychlost">
+    <div class="demo-head alt">
+      <span class="t">Tabulka tolerance rychloměru</span>
+      <span class="s">Ke stažení / vytištění</span>
+    </div>
+    <div class="tabletools"><button class="print-btn" onclick="window.print()">🖨️ Vytisknout / Uložit jako PDF</button></div>
+    <div class="tablewrap">
+      <table class="reftable">
+        <thead><tr><th>Naměřená rychlost</th><th>Tolerance</th><th>Poznámka</th></tr></thead>
+        <tbody>
+          <tr><td>do 100 km/h</td><td>± X km/h</td><td>Doplnit dle aktuálního metrologického předpisu</td></tr>
+          <tr><td>nad 100 km/h</td><td>± X %</td><td>Doplnit dle aktuálního metrologického předpisu</td></tr>
+          <tr><td>Úsekové měření</td><td>± X %</td><td>Doplnit</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="verify-note">⚠ Hodnoty jsou zástupné (X). Před použitím v terénu nahraď aktuálně platnými čísly z metrologického předpisu / ověřovacího listu.</div>
+  </div>
+
+  <!-- printable tabulka alkohol -->
+  <div class="demo-card" id="tab-alkohol">
+    <div class="demo-head alt">
+      <span class="t">Tabulka tolerance alkoholu</span>
+      <span class="s">Ke stažení / vytištění</span>
+    </div>
+    <div class="tabletools"><button class="print-btn" onclick="window.print()">🖨️ Vytisknout / Uložit jako PDF</button></div>
+    <div class="tablewrap">
+      <table class="reftable">
+        <thead><tr><th>Naměřená hodnota</th><th>Klasifikace</th><th>Postup</th></tr></thead>
+        <tbody>
+          <tr><td>0,00 ‰</td><td>Bez alkoholu</td><td>Doplnit standardní postup</td></tr>
+          <tr><td>do X ‰</td><td>Fyziologická hladina</td><td>Doplnit</td></tr>
+          <tr><td>nad X ‰</td><td>Pod vlivem</td><td>Doplnit</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="verify-note">⚠ Hodnoty jsou zástupné (X). Toto je citlivé číslo s právním dopadem — nahraď výhradně aktuálně platnou metodikou, ne odhadem.</div>
+  </div>
+</section>
+
+<!-- ============ TIER 3: PORADNA ============ -->
+<section id="poradna" class="wrap tiersection">
+  <div class="sechead">
+    <span class="tiernum t3">Tier 3 · přístup jen pro ověřené policisty</span>
+    <h2>Anonymní poradna a sdílení zkušeností</h2>
+    <p>Prostor jen pro sloužící kolegy — rady, zkušenosti, anonymní sdílení příhod. Vstup je ručně schvalovaný, aby zůstal bezpečný pro ty, co ho fakt využívají.</p>
+  </div>
+
+  <div class="poradna-flow" style="margin-bottom:30px;">
+    <div class="flowcard">
+      <h3>Jak funguje ověření</h3>
+      <ol class="flowsteps">
+        <li>Vyplníš jméno, příjmení, OEČ a útvar, kde sloužíš.</li>
+        <li>Žádost jde ke schválení — kontrola trvá obvykle pár dní.</li>
+        <li>Po schválení dostaneš přístup a údaje se z databáze trvale smažou.</li>
+        <li>V poradně samotné vystupuješ pod přezdívkou — nikdo tam nevidí tvé jméno.</li>
+      </ol>
+      <div class="privacybox">🔒 Jméno, příjmení a OEČ se používají výhradně k jednorázovému ověření a po schválení nebo zamítnutí žádosti se natrvalo mažou. Nikde se dál neukládají ani nezobrazují.</div>
+    </div>
+
+    <div class="flowcard">
+      <h3>Zkus si žádost o přístup</h3>
+      <form class="regform" id="regForm">
+        <label for="regJmeno">Jméno a příjmení</label>
+        <input type="text" id="regJmeno" required>
+        <label for="regOec">OEČ</label>
+        <input type="text" id="regOec" required>
+        <label for="regUtvar">Útvar / oddělení</label>
+        <input type="text" id="regUtvar" required>
+        <button type="submit">Odeslat žádost o ověření</button>
+      </form>
+      <div class="regstatus" id="regStatus"></div>
+    </div>
+  </div>
+
+  <div class="sechead" style="margin-bottom:18px;">
+    <h3 style="font-size:18px;">Náhled poradny (jen pro ověřené)</h3>
+  </div>
+  <div class="forumpreview">
+    <div class="forumpost"><strong>Jak řešíte agresivního řidiče při kontrole sám v noci?</strong><div class="meta">12 odpovědí · dálniční služba</div></div>
+    <div class="forumpost"><strong>Zkušenosti s výběrovým řízením na URNA — na co se ptali</strong><div class="meta">8 odpovědí · zájem o ZJ</div></div>
+    <div class="forumpost"><strong>Na co si dát pozor u opakovaně kontrolovaných osob v regionu</strong><div class="meta">21 odpovědí · pořádková služba</div></div>
+    <div class="lockoverlay"><span class="lockbadge">🔒 Odemkne se po ověření přístupu</span></div>
+  </div>
+  <p style="font-size:13px; color:var(--ink-soft); margin-top:10px;">Poznámka k obsahu: poradna se drží obecných vzorců chování a zkušeností, ne konkrétních jmen třetích osob — kvůli ochraně osobních údajů a předejití pomluvě.</p>
+</section>
+
+<!-- ============ CENÍK ============ -->
+<section id="cena" class="wrap tiersection">
+  <div class="sechead">
+    <div class="eyebrow">Ceník</div>
+    <h2>Tři úrovně, jedna platforma</h2>
+  </div>
+  <div class="pricing">
+    <div class="price-card">
+      <h3>Uchazeči</h3>
+      <div class="price">199 Kč <span>jednorázově</span></div>
+      <ul>
+        <li>Testy ze zákonů s vysvětlením</li>
+        <li>Kalkulačky fyzických testů</li>
+        <li>Přehled psychotestů</li>
+        <li>Postup přijímacího řízení a ZOP</li>
+      </ul>
+      <a class="btn-secondary" href="#uchazeci" style="display:block; text-align:center;">Zobrazit</a>
+    </div>
+    <div class="price-card featured">
+      <h3>Kolegové ve službě</h3>
+      <div class="price">99 Kč <span>jednorázově</span></div>
+      <ul>
+        <li>Fotodokumentační nástroj</li>
+        <li>Tabulky rychloměru a alkoholu k tisku</li>
+        <li>Fyzické tabulky pro průběžné testy</li>
+        <li>Vše z tieru pro uchazeče navíc</li>
+      </ul>
+      <a class="btn-primary" href="#kolegove" style="display:block; text-align:center;">Zobrazit</a>
+    </div>
+    <div class="price-card">
+      <h3>Poradna</h3>
+      <div class="price">Součást tieru<span>kolegové</span></div>
+      <ul>
+        <li>Anonymní diskuze a sdílení zkušeností</li>
+        <li>Ruční ověření přes OEČ</li>
+        <li>Žádné trvalé ukládání citlivých údajů</li>
+      </ul>
+      <a class="btn-secondary" href="#poradna" style="display:block; text-align:center;">Zobrazit</a>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="waitlist">
+    <h2>Ještě se dolaďuje, ale funguje.</h2>
+    <p>Platforma se staví. Nech mi na sebe kontakt a napíšu ti, jakmile bude spuštěná — první přihlášení dostanou zaváděcí cenu.</p>
+    <form class="waitform" id="waitForm">
+      <input type="email" id="waitEmail" placeholder="tvůj e-mail" required>
+      <button type="submit">Chci vědět jako první</button>
+    </form>
+    <div class="waitstatus" id="waitStatus"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© <span id="year"></span> Zopáček</div>
+    <div>Pro uchazeče i sloužící policisty</div>
+  </div>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* QUIZ DEMO */
+const quizData = [
+  {q:"Podle jakého zákona se primárně řídí činnost Policie ČR?", opts:["Zákon č. 273/2008 Sb., o Policii České republiky","Zákon č. 361/2000 Sb., o silničním provozu","Zákon č. 40/2009 Sb., trestní zákoník"], correct:0, explain:"Zákon č. 273/2008 Sb. upravuje postavení, úkoly a pravomoci Policie ČR."},
+  {q:"Zákon č. 361/2000 Sb. upravuje především:", opts:["Podmínky provozu na pozemních komunikacích","Organizaci soudnictví","Přestupky proti majetku"], correct:0, explain:"Jde o zákon o provozu na pozemních komunikacích — klíčový pro dálniční i pořádkovou službu."},
+  {q:"Co obecně znamená zkratka ZOP v kontextu nástupu k policii?", opts:["Základní odborná příprava","Zvláštní operační protokol","Zákon o pořádkové policii"], correct:0, explain:"ZOP je základní odborná příprava, kterou prochází každý nově přijatý policista."}
+];
+let quizIndex=0, quizScore=0, answered=false;
+function renderQuiz(){
+  const item=quizData[quizIndex];
+  document.getElementById('quizQuestion').textContent=item.q;
+  document.getElementById('quizProgress').textContent=`Otázka ${quizIndex+1} / ${quizData.length}`;
+  document.getElementById('quizScore').textContent=`Skóre: ${quizScore} / ${quizIndex}`;
+  document.getElementById('quizFeedback').textContent=''; document.getElementById('quizFeedback').className='feedback';
+  document.getElementById('quizNextBtn').disabled=true; answered=false;
+  const optsWrap=document.getElementById('quizOptions'); optsWrap.innerHTML='';
+  item.opts.forEach((opt,i)=>{const btn=document.createElement('button'); btn.className='opt'; btn.textContent=opt; btn.addEventListener('click',()=>selectAnswer(i)); optsWrap.appendChild(btn);});
+}
+function selectAnswer(i){
+  if(answered) return; answered=true;
+  const item=quizData[quizIndex];
+  document.querySelectorAll('#quizOptions .opt').forEach((b,idx)=>{b.disabled=true; if(idx===item.correct) b.classList.add('correct'); else if(idx===i) b.classList.add('wrong');});
+  const fb=document.getElementById('quizFeedback');
+  if(i===item.correct){quizScore++; fb.textContent='Správně. '+item.explain; fb.className='feedback ok';}
+  else{fb.textContent='Nesprávně. '+item.explain; fb.className='feedback err';}
+  document.getElementById('quizScore').textContent=`Skóre: ${quizScore} / ${quizIndex+1}`;
+  const nextBtn=document.getElementById('quizNextBtn'); nextBtn.disabled=false;
+  nextBtn.textContent = quizIndex < quizData.length-1 ? 'Další otázka' : 'Zobrazit výsledek';
+}
+document.getElementById('quizNextBtn').addEventListener('click',()=>{
+  if(quizIndex<quizData.length-1){quizIndex++; renderQuiz();}
+  else{
+    document.getElementById('quizQuestion').textContent=`Hotovo — ${quizScore} / ${quizData.length} správně.`;
+    document.getElementById('quizOptions').innerHTML='';
+    document.getElementById('quizFeedback').textContent='V plné verzi na tebe čekají stovky dalších otázek.';
+    document.getElementById('quizFeedback').className='feedback';
+    document.getElementById('quizNextBtn').disabled=true;
+  }
+});
+renderQuiz();
+
+/* COOPER CALCULATOR DEMO */
+function estimateCooperPoints(distance, gender){
+  if(!distance || distance<=0) return null;
+  const base = gender==='z' ? distance-200 : distance;
+  return Math.max(0, Math.min(100, Math.round((base-2000)/10)));
+}
+function updateCooper(){
+  const dist=parseFloat(document.getElementById('coopDist').value);
+  const gender=document.getElementById('coopGender').value;
+  const pts=estimateCooperPoints(dist,gender);
+  document.getElementById('coopPoints').textContent = pts===null ? '— bodů' : `${pts} bodů (orientačně)`;
+}
+document.getElementById('coopDist').addEventListener('input', updateCooper);
+document.getElementById('coopGender').addEventListener('change', updateCooper);
+
+/* REGISTRATION DEMO (front-end only, no backend yet) */
+document.getElementById('regForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const status=document.getElementById('regStatus');
+  status.textContent='Žádost odeslána — čeká na ruční schválení. Po ověření se zadané údaje trvale smažou.';
+  status.className='regstatus show pending';
+  e.target.reset();
+});
+
+/* WAITLIST DEMO */
+document.getElementById('waitForm').addEventListener('submit',(e)=>{
+  e.preventDefault();
+  document.getElementById('waitStatus').textContent='Zapsáno. Ozvu se, jakmile bude platforma spuštěná.';
+  document.getElementById('waitEmail').value='';
+});
+</script>
+
+</body>
+</html>
