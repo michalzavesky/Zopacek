@@ -176,6 +176,13 @@
   .lockbadge{background:var(--ink); color:#fff; font-size:13.5px; font-weight:600; padding:11px 20px; border-radius:8px;}
 
   .pricing{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .member-only{display:none!important;}
+  .public-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px;}
+  .overview-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow-sm);}
+  .overview-card h3{font-size:16px;margin-bottom:8px;}
+  .overview-card p{font-size:14px;color:var(--ink-soft);}
+  .plan-note{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+  @media(max-width:800px){.public-overview{grid-template-columns:1fr;}}
   .price-card{border:1.5px solid var(--line); border-radius:14px; padding:26px 24px; background:#fff; box-shadow:var(--shadow-sm); transition:box-shadow .2s ease, transform .2s ease;}
   .price-card:hover{box-shadow:var(--shadow-md); transform:translateY(-2px);}
   .price-card.featured{border-color:var(--blue); position:relative; box-shadow:var(--shadow-lg);}
@@ -290,12 +297,12 @@
     <nav>
       <div class="logo"><span class="badge">Z</span> Zopáček</div>
       <div class="navlinks">
-        <a href="#uchazeci">Uchazeči</a>
-        <a href="#kolegove">Kolegové</a>
-        <a href="#poradna">Poradna</a>
-        <a href="#cena">Ceník</a>
+        <a href="#nabidka">Co nabízím</a>
+        <a href="#cena">Členství</a>
+        <a href="#overeni">Ověření</a>
+        <a href="#login" onclick="showLogin(event)">Přihlášení</a>
       </div>
-      <a class="navcta" href="#cena">Ceník</a>
+      <a class="navcta" href="#cena">Vybrat členství</a>
     </nav>
   </div>
 </header>
@@ -310,17 +317,41 @@
       <p class="lead">Zopáček roste s tebou — nejdřív ti pomůže projít přijímačkami, pak ti ve službě dá po ruce nástroje a tabulky, co reálně potřebuješ, a nakonec prostor promluvit si s kolegy, co tím prošli taky.</p>
     </div>
     <div class="tierpills">
-      <a class="pill p1" href="#uchazeci">① Uchazeči — 199 Kč</a>
-      <a class="pill p2" href="#kolegove">② Kolegové ve službě — 99 Kč</a>
-      <a class="pill p3" href="#poradna">③ Poradna — pro ověřené policisty</a>
+      <a class="pill p1" href="#cena" onclick="selectPlan('uchazeci');">① Uchazeči — 199 Kč / měsíc</a>
+      <a class="pill p2" href="#cena" onclick="selectPlan('kolegove');">② Kolegové ve službě — 99 Kč / měsíc</a>
+      <a class="pill p3" href="#overeni">③ Ověření příslušnosti k Policii ČR</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============ VEŘEJNÝ PŘEHLED ============ -->
+<section id="nabidka" class="wrap tiersection">
+  <div class="sechead">
+    <div class="eyebrow">Co na Zopáčku najdeš</div>
+    <h2>Praktický obsah bez zbytečností</h2>
+    <p>Na veřejné stránce ukazuju jen to, co platforma nabízí. Konkrétní pracovní materiály, nástroje a poradna se zobrazí až po aktivaci příslušného členství.</p>
+  </div>
+  <div class="public-overview">
+    <div class="overview-card">
+      <h3>🎓 Pro uchazeče</h3>
+      <p>Testy ze zákonů, příprava na přijímací řízení, fyzické testy, psychotesty a přehled toho, co čekat dál.</p>
+    </div>
+    <div class="overview-card">
+      <h3>🚓 Pro kolegy ve službě</h3>
+      <p>Praktické tabulky, pracovní pomůcky, rychlé přehledy a nástroje použitelné během služby.</p>
+    </div>
+    <div class="overview-card">
+      <h3>🔒 Ověřená poradna</h3>
+      <p>Uzavřený prostor pro ověřené policisty, kde mohou sdílet zkušenosti a ptát se kolegů bez veřejného vystupování pod jménem.</p>
     </div>
   </div>
 </section>
 
 <!-- ============ TIER 1: UCHAZEČI ============ -->
-<section id="uchazeci" class="wrap tiersection">
+<section id="uchazeci" class="wrap tiersection member-only">
   <div class="sechead">
-    <span class="tiernum t1">Tier 1 · 199 Kč jednorázově</span>
+    <span class="tiernum t1">Tier 1 · 199 Kč / měsíc</span>
     <h2>Pro ty, co se teprve hlásí</h2>
     <p>Vše, co potřebuješ vědět o cestě od podání přihlášky po nástup — testy ze zákonů, fyzičku, psychotesty i to, co tě čeká na ZOP.</p>
   </div>
@@ -405,9 +436,9 @@
 </section>
 
 <!-- ============ TIER 2: KOLEGOVÉ ============ -->
-<section id="kolegove" class="wrap tiersection">
+<section id="kolegove" class="wrap tiersection member-only">
   <div class="sechead">
-    <span class="tiernum t2">Tier 2 · 99 Kč jednorázově</span>
+    <span class="tiernum t2">Tier 2 · 99 Kč / měsíc</span>
     <h2>Pro kolegy, co už slouží</h2>
     <p>Praktické nástroje a tabulky do služby — ke stažení, vytisknutí, nebo rovnou v mobilu na směně.</p>
   </div>
@@ -522,12 +553,55 @@
   </div>
 </section>
 
-<!-- ============ TIER 3: PORADNA ============ -->
-<section id="poradna" class="wrap tiersection">
+<!-- ============ CENÍK ============ -->
+<section id="cena" class="wrap tiersection">
   <div class="sechead">
-    <span class="tiernum t3">Tier 3 · přístup jen pro ověřené policisty</span>
-    <h2>Anonymní poradna a sdílení zkušeností</h2>
-    <p>Prostor jen pro sloužící kolegy — rady, zkušenosti, anonymní sdílení příhod. Vstup je ručně schvalovaný, aby zůstal bezpečný pro ty, co ho fakt využívají.</p>
+    <div class="eyebrow">Měsíční členství</div>
+    <h2>Dvě měsíční členství</h2>
+    <p style="color:var(--ink-soft); font-size:15.5px; margin-top:10px;">Členství se účtuje měsíčně. Přístup můžeš kdykoliv ukončit; žádná jednorázová doživotní platba.</p>
+  </div>
+  <div class="pricing">
+    <div class="price-card">
+      <h3>Uchazeči</h3>
+      <div class="price">199 Kč <span>měsíčně</span></div>
+      <ul>
+        <li>Testy ze zákonů s vysvětlením</li>
+        <li>Kalkulačky fyzických testů</li>
+        <li>Přehled psychotestů</li>
+        <li>Postup přijímacího řízení a ZOP</li>
+      </ul>
+      <a class="btn-secondary" href="#overeni" onclick="selectPlan('uchazeci')" style="display:block; text-align:center;">Vybrat členství</a>
+    </div>
+    <div class="price-card featured">
+      <h3>Kolegové ve službě</h3>
+      <div class="price">99 Kč <span>měsíčně</span></div>
+      <ul>
+        <li>Fotodokumentační nástroj</li>
+        <li>Tabulky rychloměru a alkoholu k tisku</li>
+        <li>Fyzické tabulky pro průběžné testy</li>
+        <li>Vše z tieru pro uchazeče navíc</li>
+      </ul>
+      <a class="btn-primary" href="#overeni" onclick="selectPlan('kolegove')" style="display:block; text-align:center;">Vybrat členství</a>
+    </div>
+    <div class="price-card">
+      <h3>Ověřená poradna</h3>
+      <div class="price">Součást tieru<span>kolegové</span></div>
+      <ul>
+        <li>Anonymní diskuze a sdílení zkušeností</li>
+        <li>Ruční ověření přes OEČ</li>
+        <li>Citlivé údaje nejsou veřejně zobrazované</li>
+      </ul>
+      <a class="btn-secondary" href="#overeni" onclick="selectPlan('kolegove')" style="display:block; text-align:center;">Ověřit a pokračovat</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIER 3: PORADNA ============ -->
+<section id="overeni" class="wrap tiersection">
+  <div class="sechead">
+    <span class="tiernum t3">Ověření příslušnosti k Policii ČR</span>
+    <h2>Vyber členství a ověř svou příslušnost</h2>
+    <p>Pro členství pro kolegy ve službě je součástí registrace ruční ověření příslušnosti k Policii ČR. OEČ, jméno a útvar si ponechávám pro kontrolu a evidenci; nejsou veřejně zobrazované.</p>
   </div>
 
   <div class="poradna-flow" style="margin-bottom:30px;">
@@ -536,15 +610,17 @@
       <ol class="flowsteps">
         <li>Vyplníš jméno, příjmení, OEČ a útvar, kde sloužíš.</li>
         <li>Žádost jde ke schválení — kontrola trvá obvykle pár dní.</li>
-        <li>Po schválení dostaneš přístup a údaje se z databáze trvale smažou.</li>
+        <li>Po schválení se žádost označí jako vyřízená a ověřovací údaje zůstávají v interní evidenci pro kontrolu.</li>
         <li>V poradně samotné vystupuješ pod přezdívkou — nikdo tam nevidí tvé jméno.</li>
       </ol>
-      <div class="privacybox">🔒 Jméno, příjmení a OEČ se používají výhradně k jednorázovému ověření a po schválení nebo zamítnutí žádosti se natrvalo mažou. Nikde se dál neukládají ani nezobrazují.</div>
+      <div class="privacybox">🔒 Jméno, OEČ a útvar jsou citlivé údaje. Nezobrazují se ostatním uživatelům ani v poradně. Uchovávám je pouze v zabezpečené interní evidenci pro ruční ověření a správu členství.</div>
     </div>
 
     <div class="flowcard">
-      <h3>Žádost o přístup</h3>
+      <h3>Ověření a registrace</h3>
+      <div class="privacybox" style="margin-bottom:14px;">Vybrané členství: <strong id="selectedPlanLabel">zatím není vybráno</strong></div>
       <form class="regform" id="regForm">
+        <input type="hidden" id="regPlan" value="">
         <label for="regOec">OEČ</label>
         <input type="text" id="regOec" required>
         <label for="regPassword">Zvol si heslo</label>
@@ -556,12 +632,13 @@
         <button type="submit">Odeslat žádost o ověření</button>
       </form>
       <div class="regstatus" id="regStatus"></div>
+      <p class="plan-note">Pro členství „Kolegové ve službě“ je ověření příslušnosti povinné. Vybraný plán se uloží spolu s žádostí.</p>
       <p style="font-size:12.5px; color:var(--ink-soft); margin-top:12px;">Už máš žádost odeslanou? <a href="#" onclick="togglePoradnaLogin(event)">Přihlas se</a> a zkontroluj stav.</p>
     </div>
   </div>
 
   <!-- LOGIN pro navrácené uživatele -->
-  <div class="flowcard" id="loginCard" style="display:none; margin-bottom:30px;">
+  <div id="login" class="flowcard" style="display:none; margin-bottom:30px;">
     <h3>Přihlášení do poradny</h3>
     <form class="regform" id="loginForm">
       <label for="loginOec">OEČ</label>
@@ -573,10 +650,10 @@
     <div class="regstatus" id="loginStatus"></div>
   </div>
 
-  <div class="sechead" style="margin-bottom:18px;">
+  <div class="sechead member-only" style="margin-bottom:18px;">
     <h3 style="font-size:18px;" id="poradnaHeading">Náhled poradny (jen pro ověřené)</h3>
   </div>
-  <div class="forumpreview" id="forumPreview">
+  <div class="forumpreview member-only" id="forumPreview">
     <div class="forumpost"><strong>Jak řešíte agresivního řidiče při kontrole sám v noci?</strong><div class="meta">12 odpovědí · dálniční služba</div></div>
     <div class="forumpost"><strong>Zkušenosti s výběrovým řízením na URNA — na co se ptali</strong><div class="meta">8 odpovědí · zájem o ZJ</div></div>
     <div class="forumpost"><strong>Na co si dát pozor u opakovaně kontrolovaných osob v regionu</strong><div class="meta">21 odpovědí · pořádková služba</div></div>
@@ -584,7 +661,7 @@
   </div>
 
   <!-- Živá poradna — vyplní se po přihlášení + schválení -->
-  <div id="livePoradna" style="display:none; margin-top:22px;">
+  <div id="livePoradna" class="member-only" style="display:none; margin-top:22px;">
     <div class="flowcard" style="margin-bottom:18px;">
       <h3>Nový příspěvek</h3>
       <form class="regform" id="postForm">
@@ -599,62 +676,12 @@
     <div class="forumpreview" id="livePostsList"></div>
   </div>
 
-  <p style="font-size:13px; color:var(--ink-soft); margin-top:10px;">Poznámka k obsahu: poradna se drží obecných vzorců chování a zkušeností, ne konkrétních jmen třetích osob — kvůli ochraně osobních údajů a předejití pomluvě.</p>
+  <p class="member-only" style="font-size:13px; color:var(--ink-soft); margin-top:10px;">Poznámka k obsahu: poradna se drží obecných vzorců chování a zkušeností, ne konkrétních jmen třetích osob — kvůli ochraně osobních údajů a předejití pomluvě.</p>
 </section>
 
-<!-- ============ CENÍK ============ -->
-<section id="cena" class="wrap tiersection">
-  <div class="sechead">
-    <div class="eyebrow">Ceník</div>
-    <h2>Tři úrovně, jedna platforma</h2>
-  </div>
-  <div class="pricing">
-    <div class="price-card">
-      <h3>Uchazeči</h3>
-      <div class="price">199 Kč <span>jednorázově</span></div>
-      <ul>
-        <li>Testy ze zákonů s vysvětlením</li>
-        <li>Kalkulačky fyzických testů</li>
-        <li>Přehled psychotestů</li>
-        <li>Postup přijímacího řízení a ZOP</li>
-      </ul>
-      <a class="btn-secondary" href="#uchazeci" style="display:block; text-align:center;">Zobrazit</a>
-    </div>
-    <div class="price-card featured">
-      <h3>Kolegové ve službě</h3>
-      <div class="price">99 Kč <span>jednorázově</span></div>
-      <ul>
-        <li>Fotodokumentační nástroj</li>
-        <li>Tabulky rychloměru a alkoholu k tisku</li>
-        <li>Fyzické tabulky pro průběžné testy</li>
-        <li>Vše z tieru pro uchazeče navíc</li>
-      </ul>
-      <a class="btn-primary" href="#kolegove" style="display:block; text-align:center;">Zobrazit</a>
-    </div>
-    <div class="price-card">
-      <h3>Poradna</h3>
-      <div class="price">Součást tieru<span>kolegové</span></div>
-      <ul>
-        <li>Anonymní diskuze a sdílení zkušeností</li>
-        <li>Ruční ověření přes OEČ</li>
-        <li>Žádné trvalé ukládání citlivých údajů</li>
-      </ul>
-      <a class="btn-secondary" href="#poradna" style="display:block; text-align:center;">Zobrazit</a>
-    </div>
-  </div>
-</section>
 
-<section class="wrap">
-  <div class="waitlist">
-    <h2>Ještě se dolaďuje, ale funguje.</h2>
-    <p>Platforma se staví. Nech mi na sebe kontakt a napíšu ti, jakmile bude spuštěná — první přihlášení dostanou zaváděcí cenu.</p>
-    <form class="waitform" id="waitForm">
-      <input type="email" id="waitEmail" placeholder="tvůj e-mail" required>
-      <button type="submit">Chci vědět jako první</button>
-    </form>
-    <div class="waitstatus" id="waitStatus"></div>
-  </div>
-</section>
+
+
 
 <footer>
   <div class="wrap">
@@ -743,6 +770,33 @@ function updateCooper(){
 document.getElementById('coopDist').addEventListener('input', updateCooper);
 document.getElementById('coopGender').addEventListener('change', updateCooper);
 
+
+const PLAN_LABELS = {
+  uchazeci: 'Uchazeči — 199 Kč / měsíc',
+  kolegove: 'Kolegové ve službě — 99 Kč / měsíc'
+};
+
+function selectPlan(plan){
+  if(!PLAN_LABELS[plan]) return;
+  localStorage.setItem('zopacek_selected_plan', plan);
+  const input = document.getElementById('regPlan');
+  const label = document.getElementById('selectedPlanLabel');
+  if(input) input.value = plan;
+  if(label) label.textContent = PLAN_LABELS[plan];
+  const section = document.getElementById('overeni');
+  if(section) section.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+(function restoreSelectedPlan(){
+  const plan = localStorage.getItem('zopacek_selected_plan');
+  if(plan && PLAN_LABELS[plan]){
+    const input = document.getElementById('regPlan');
+    const label = document.getElementById('selectedPlanLabel');
+    if(input) input.value = plan;
+    if(label) label.textContent = PLAN_LABELS[plan];
+  }
+})();
+
 /* ===== PORADNA: REGISTRACE ===== */
 document.getElementById('regForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
@@ -754,83 +808,65 @@ document.getElementById('regForm').addEventListener('submit', async (e)=>{
   const password = document.getElementById('regPassword').value;
   const jmeno = document.getElementById('regJmeno').value.trim();
   const utvar = document.getElementById('regUtvar').value.trim();
+  const plan = document.getElementById('regPlan').value || localStorage.getItem('zopacek_selected_plan') || '';
 
-  if(!oec || !jmeno || !utvar){
-    status.textContent='Vyplň všechna pole.';
+  if(!oec || !jmeno || !utvar || !plan){
+    status.textContent='Vyber nejdřív členství a vyplň všechna pole.';
     return;
   }
-  if(password.length < 12){
-    status.textContent='Heslo musí mít alespoň 12 znaků.';
+  if(password.length < 8){
+    status.textContent='Heslo musí mít alespoň 8 znaků.';
     return;
   }
 
   const internalId = oecToInternalId(oec);
 
   /* Heslo řeší výhradně Supabase Auth. Nikdy ho neposíláme do vlastní tabulky. */
-  let session = null;
-
-  /* Nejprve vytvoříme Auth účet. Pokud už existuje (např. po dřívějším
-     neúspěšném odeslání žádosti), přihlásíme se stejným OEČ + heslem a
-     dovolíme dokončit žádost. Heslo se nikam do vlastní DB neukládá. */
-  const { data: signUpData, error: signUpError } = await sb.auth.signUp({
+  const { data, error } = await sb.auth.signUp({
     email: internalId,
     password
   });
 
-  if(signUpError){
-    if(/already registered|already exists/i.test(signUpError.message)){
-      const { data: loginData, error: loginError } = await sb.auth.signInWithPassword({
-        email: internalId,
-        password
-      });
-
-      if(loginError){
-        status.textContent='Pod tímhle OEČ už účet existuje. Pokud je to tvůj účet, zkontroluj heslo.';
-        return;
-      }
-      session = loginData.session;
+  if(error){
+    if(/already registered|already exists/i.test(error.message)){
+      status.textContent='Pod tímhle OEČ už účet existuje. Zkus se přihlásit.';
     } else {
       status.textContent='Nepodařilo se založit účet. Zkontroluj údaje a zkus to znovu.';
-      return;
     }
-  } else {
-    session = signUpData.session;
-  }
-
-  /* Bez potvrzení e-mailu musí Supabase vrátit session hned. */
-  if(!session){
-    status.textContent='Účet byl vytvořen, ale není aktivní session. V Supabase vypni Authentication → Providers → Email → Confirm email.';
     return;
   }
 
-  /* Žádost nyní ukládá bezpečná SECURITY DEFINER funkce přímo v Postgresu.
-     Frontend nemá přímý INSERT do citlivé tabulky. */
-  const { data: requestData, error: requestError } = await sb.rpc('submit_verification_request', {
-    p_jmeno: jmeno,
-    p_oec: oec,
-    p_utvar: utvar
+  /* Pokud je v Auth zapnuté potvrzení e-mailu, data.session může být null.
+     U interního identifikátoru bez skutečného e-mailu proto musí být Confirm email vypnuté. */
+  if(!data.session){
+    status.textContent='Účet byl vytvořen, ale přihlášení čeká na potvrzení účtu. V Supabase vypni Confirm email pro tento interní login.';
+    return;
+  }
+
+  const { error: requestError } = await sb.functions.invoke('create-verification-request', {
+    body: { jmeno, oec, utvar, plan }
   });
 
   if(requestError){
-    console.error('submit_verification_request:', requestError);
-    status.textContent='Účet je vytvořený, ale žádost se nepodařilo uložit. Zkus to prosím ještě jednou.';
+    /* Účet už existuje, ale citlivá žádost se nevytvořila. Heslo zde znovu nikam neukládáme. */
+    status.textContent='Účet byl vytvořen, ale žádost o ověření se nepodařilo odeslat. Přihlas se znovu a zkus žádost odeslat.';
     return;
   }
 
-  if(requestData && requestData.status === 'exists'){
-    status.textContent='Žádost už byla pro toto OEČ odeslána. Přihlas se a zkontroluj její stav.';
-    return;
-  }
-
-  status.textContent='Žádost odeslána — čeká na ruční schválení. Po schválení se ověřovací údaje automaticky smažou.';
+  status.textContent='Žádost odeslána — čeká na ruční schválení. Vybrané členství: ' + (PLAN_LABELS[plan] || plan) + '. Ověřovací údaje zůstávají v zabezpečené interní evidenci.';
   e.target.reset();
 });
 
 /* ===== PORADNA: PŘIHLÁŠENÍ ===== */
-function togglePoradnaLogin(e){
+function showLogin(e){
   if(e) e.preventDefault();
-  document.getElementById('loginCard').style.display = '';
-  document.getElementById('loginCard').scrollIntoView({behavior:'smooth', block:'center'});
+  const card = document.getElementById('loginCard');
+  card.style.display = '';
+  card.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function togglePoradnaLogin(e){
+  showLogin(e);
 }
 
 document.getElementById('loginForm').addEventListener('submit', async (e)=>{
@@ -860,7 +896,7 @@ async function checkApprovalAndLoadPoradna(){
 
   const { data: statusData, error: statusError } = await sb
     .from('verification_status')
-    .select('status')
+    .select('status,plan')
     .eq('user_id', user.id)
     .maybeSingle();
 
@@ -881,7 +917,8 @@ async function checkApprovalAndLoadPoradna(){
   }
 
   if(statusData.status === 'approved'){
-    heading.textContent='Poradna — přihlášen';
+    heading.textContent='Členství ověřeno';
+    document.querySelectorAll('.member-only').forEach(el => el.classList.remove('member-only'));
     forumPreview.style.display='none';
     livePoradna.style.display='';
     loginCard.style.display='none';
