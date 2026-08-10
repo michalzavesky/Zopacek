@@ -175,8 +175,17 @@
   .lockoverlay{position:absolute; inset:0; background:linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.97) 60%); display:flex; align-items:flex-end; justify-content:center; padding-bottom:26px;}
   .lockbadge{background:var(--ink); color:#fff; font-size:13.5px; font-weight:600; padding:11px 20px; border-radius:8px;}
 
-  .pricing{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .pricing{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
   .member-only{display:none!important;}
+  .paid-member{display:none!important;}
+  .approved-member{display:none!important;}
+  .auth-choice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .auth-choice button{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);}
+  .auth-choice button.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .login-panel{display:none;}
+  .login-panel.active{display:block;}
+  .police-warning{background:var(--warn-soft);color:var(--warn);border:1px solid #ead9ae;border-radius:9px;padding:13px 15px;font-size:13px;font-weight:600;margin-bottom:14px;}
+  .access-note{background:var(--blue-soft);color:var(--blue);border-radius:9px;padding:13px 15px;font-size:13px;margin-top:12px;}
   .public-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px;}
   .overview-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow-sm);}
   .overview-card h3{font-size:16px;margin-bottom:8px;}
@@ -338,17 +347,17 @@
     </div>
     <div class="overview-card">
       <h3>🚓 Pro kolegy ve službě</h3>
-      <p>Praktické tabulky, pracovní pomůcky, rychlé přehledy a nástroje použitelné během služby.</p>
+      <p>Praktické tabulky, pracovní pomůcky, rychlé přehledy a nástroje použitelné během služby. Po zaplacení jsou dostupné ihned.</p>
     </div>
     <div class="overview-card">
       <h3>🔒 Poradna pro ověřené kolegy</h3>
-      <p>Je součástí členství „Kolegové ve službě“. Přístup dostanou pouze zaplacení a ručně ověření kolegové.</p>
+      <p>Poradna a uzavřená secret sekce jsou součástí členství „Kolegové ve službě“, ale odemknou se až po ručním ověření příslušnosti.</p>
     </div>
   </div>
 </section>
 
 <!-- ============ TIER 1: UCHAZEČI ============ -->
-<section id="uchazeci" class="wrap tiersection member-only applicant-only">
+<section id="uchazeci" class="wrap tiersection paid-member applicant-only">
   <div class="sechead">
     <span class="tiernum t1">Tier 1 · 199 Kč / měsíc</span>
     <h2>Pro ty, co se teprve hlásí</h2>
@@ -435,7 +444,7 @@
 </section>
 
 <!-- ============ TIER 2: KOLEGOVÉ ============ -->
-<section id="kolegove" class="wrap tiersection member-only colleague-only">
+<section id="kolegove" class="wrap tiersection paid-member colleague-only">
   <div class="sechead">
     <span class="tiernum t2">Tier 2 · 99 Kč / měsíc</span>
     <h2>Pro kolegy, co už slouží</h2>
@@ -558,6 +567,7 @@
     <div class="eyebrow">Měsíční členství</div>
     <h2>Dvě měsíční členství</h2>
     <p style="color:var(--ink-soft); font-size:15.5px; margin-top:10px;">Členství se účtuje měsíčně. Přístup můžeš kdykoliv ukončit; žádná jednorázová doživotní platba.</p>
+    <div class="access-note">🚓 U kolegů ve službě: <strong>placené materiály a nástroje jsou dostupné ihned po platbě</strong>. Ruční ověření příslušnosti trvá přibližně 3 dny a je potřeba pouze pro poradnu a uzavřenou secret sekci.</div>
   </div>
   <div class="pricing">
     <div class="price-card">
@@ -568,7 +578,7 @@
         <li>Kalkulačky fyzických testů</li>
         <li>Přehled psychotestů</li>
         <li>Postup přijímacího řízení a ZOP</li>
-        <li>Registrace bez OEČ — stačí e-mail, přezdívka a heslo</li>
+        <li>Registrace bez OEČ — stačí přezdívka a heslo</li>
       </ul>
       <a class="btn-secondary" href="#overeni" onclick="selectPlan('uchazeci')" style="display:block; text-align:center;">Vybrat členství</a>
     </div>
@@ -587,93 +597,121 @@
 </section>
 
 <!-- ============ TIER 3: PORADNA ============ -->
+
 <section id="overeni" class="wrap tiersection">
   <div class="sechead">
-    <span class="tiernum t3">Registrace → platba → aktivace</span>
+    <span class="tiernum t3">Registrace → platba → přístup</span>
     <h2>Vyber členství a založ účet</h2>
-    <p>Uchazeči se registrují běžným e-mailem a heslem — OEČ ještě nemají. Kolegové ve službě zvolí členství, registrují se e-mailem a po zaplacení projdou ručním ověřením příslušnosti pomocí OEČ.</p>
+    <p>Každý typ členství má vlastní přihlášení. Uchazeč používá přezdívku a heslo. Policista používá OEČ, jméno a heslo.</p>
   </div>
 
   <div class="poradna-flow" style="margin-bottom:30px;">
     <div class="flowcard">
-      <h3>Jak funguje aktivace</h3>
+      <h3>Jak funguje přístup</h3>
       <ol class="flowsteps">
-        <li>Vybereš si měsíční členství a založíš účet e-mailem + heslem.</li>
-        <li>Dokončíš platbu předplatného.</li>
-        <li>Uchazeči získají přístup po úspěšné platbě bez OEČ.</li>
-        <li>Kolegové ve službě po zaplacení vyplní OEČ, jméno a útvar pro ruční ověření příslušnosti.</li>
-        <li>Po schválení se odemkne i uzavřená sekce pro kolegy a poradna.</li>
+        <li>Vybereš si jedno ze dvou měsíčních členství.</li>
+        <li>Založíš účet podle typu členství.</li>
+        <li>Po úspěšné platbě se <strong>užitečné materiály a nástroje odemknou ihned</strong>.</li>
+        <li>U kolegů ve službě se po zaplacení spustí ruční ověření příslušnosti.</li>
+        <li>Ověření kolegy trvá přibližně <strong>3 dny</strong>. Teprve po schválení se odemkne poradna a uzavřená „secret“ sekce.</li>
       </ol>
-      <div class="privacybox">🔒 OEČ, jméno a útvar používám pouze pro ověření příslušnosti u členství „Kolegové ve službě“. Ostatním uživatelům se nezobrazují.</div>
+      <div class="privacybox">🔒 OEČ, jméno a útvar kolegů nejsou veřejné. Slouží pouze pro ověření příslušnosti. Přístup k běžným placeným materiálům není na toto ověření vázán.</div>
     </div>
 
     <div class="flowcard">
       <h3>Registrace</h3>
       <div class="privacybox" style="margin-bottom:14px;">Vybrané členství: <strong id="selectedPlanLabel">zatím není vybráno</strong></div>
+
       <form class="regform" id="regForm">
         <input type="hidden" id="regPlan" value="">
-        <label for="regEmail">E-mail</label>
-        <input type="email" id="regEmail" autocomplete="email" required>
-        <label for="regNickname">Přezdívka</label>
-        <input type="text" id="regNickname" maxlength="40" autocomplete="nickname" required>
-        <label for="regPassword">Heslo</label>
-        <input type="password" id="regPassword" minlength="12" autocomplete="new-password" required>
+
+        <div id="candidateRegistration">
+          <label for="regNickname">Přezdívka</label>
+          <input type="text" id="regNickname" maxlength="40" autocomplete="nickname" placeholder="např. Pepa123">
+          <label for="regPasswordCandidate">Heslo</label>
+          <input type="password" id="regPasswordCandidate" minlength="12" autocomplete="new-password">
+          <div class="access-note">🎓 Uchazeč se přihlašuje pouze přezdívkou a heslem. OEČ není potřeba.</div>
+        </div>
+
+        <div id="policeRegistration" style="display:none;">
+          <div class="police-warning">
+            ⏳ <strong>Ověření příslušnosti trvá přibližně 3 dny.</strong><br>
+            Po zaplacení ale získáš <strong>ihned přístup k užitečným materiálům a nástrojům</strong>. Poradna a uzavřená secret sekce se odemknou až po schválení.
+          </div>
+          <label for="regOec">OEČ</label>
+          <input type="text" id="regOec" inputmode="numeric" autocomplete="off" placeholder="Tvoje OEČ">
+          <label for="regJmeno">Jméno a příjmení</label>
+          <input type="text" id="regJmeno" autocomplete="name" placeholder="Jméno a příjmení">
+          <label for="regUtvar">Útvar / oddělení</label>
+          <input type="text" id="regUtvar" autocomplete="organization" placeholder="Útvar / oddělení">
+          <label for="regPasswordPolice">Heslo</label>
+          <input type="password" id="regPasswordPolice" minlength="12" autocomplete="new-password">
+          <div class="access-note">🚓 Policista se po registraci přihlašuje pomocí <strong>OEČ + jména + hesla</strong>.</div>
+        </div>
+
         <button type="submit">Vytvořit účet a pokračovat k platbě</button>
       </form>
       <div class="regstatus" id="regStatus"></div>
 
       <div id="paymentStep" class="flowcard" style="margin-top:14px; display:none;">
         <h3>2. Platba členství</h3>
-        <p id="paymentStepText">Po vytvoření účtu pokračuj na bezpečnou platební stránku. Přístup se aktivuje až po potvrzení platby.</p>
+        <p id="paymentStepText">Po vytvoření účtu pokračuj na bezpečnou platební stránku.</p>
         <button type="button" id="paymentButton" class="btn-primary" disabled>Pokračovat k platbě</button>
-        <div class="plan-note">Platební tlačítko bude napojené na Stripe Checkout. Bez potvrzené platby se placený obsah neodemkne.</div>
+        <div class="plan-note">Po potvrzení měsíční platby se aktivuje placený přístup. U kolegy se zároveň spustí ověření příslušnosti.</div>
       </div>
 
-      <div id="policeVerificationStep" class="flowcard" style="margin-top:14px; display:none;">
-        <h3>3. Ověření příslušnosti</h3>
-        <p>U členství „Kolegové ve službě“ se po úspěšné platbě zobrazí tento krok. Teprve zde zadáš OEČ, jméno a útvar pro ruční kontrolu.</p>
-        <form class="regform" id="policeVerificationForm">
-          <label for="regOec">OEČ</label>
-          <input type="text" id="regOec" inputmode="numeric" autocomplete="off" required>
-          <label for="regJmeno">Jméno a příjmení</label>
-          <input type="text" id="regJmeno" autocomplete="name" required>
-          <label for="regUtvar">Útvar / oddělení</label>
-          <input type="text" id="regUtvar" autocomplete="organization" required>
-          <button type="submit">Odeslat k ručnímu ověření</button>
-        </form>
-        <div class="regstatus" id="policeVerificationStatus"></div>
-        <div class="privacybox">🔒 Tyto údaje nejsou veřejně zobrazované. Slouží pouze k ručnímu ověření příslušnosti.</div>
+      <div id="policeVerificationInfo" class="police-warning" style="margin-top:14px; display:none;">
+        ⏳ <strong>Ověření probíhá.</strong> Po zaplacení máš přístup k běžným užitečným materiálům ihned. Ruční ověření OEČ trvá přibližně 3 dny; po schválení se odemkne poradna a secret sekce.
       </div>
-      <div id="paymentStep" class="privacybox" style="margin-top:14px; display:none;">💳 <strong>Platba členství</strong><br>Po vytvoření účtu tě systém přesměruje na bezpečnou platební stránku. Přístup se odemkne až po potvrzení úspěšné platby.</div>
-      <p class="plan-note">Po registraci následuje platba měsíčního členství. U kolegů ve službě se po zaplacení provede ještě ruční ověření příslušnosti.</p>
-      <p style="font-size:12.5px; color:var(--ink-soft); margin-top:12px;">Už účet máš? <a href="#" onclick="togglePoradnaLogin(event)">Přihlas se</a>.</p>
+
+      <p class="plan-note">Už účet máš? Přihlas se níže.</p>
     </div>
   </div>
 
-  <!-- LOGIN pro navrácené uživatele -->
-  <div id="login" class="flowcard" style="display:none; margin-bottom:30px;">
-    <h3>Přihlášení do členské sekce</h3>
-    <form class="regform" id="loginForm">
-      <label for="loginEmail">E-mail</label>
-      <input type="email" id="loginEmail" autocomplete="email" required>
-      <label for="loginPassword">Heslo</label>
-      <input type="password" id="loginPassword" required>
-      <button type="submit">Přihlásit se</button>
-    </form>
-    <div class="regstatus" id="loginStatus"></div>
+  <!-- LOGIN -->
+  <div id="login" class="flowcard" style="margin-bottom:30px;">
+    <h3>Přihlášení</h3>
+    <div class="auth-choice">
+      <button type="button" id="loginCandidateTab" class="active" onclick="switchLoginType('uchazeci')">🎓 Uchazeč</button>
+      <button type="button" id="loginPoliceTab" onclick="switchLoginType('kolegove')">🚓 Policista</button>
+    </div>
+
+    <div id="loginCandidatePanel" class="login-panel active">
+      <form class="regform" id="loginCandidateForm">
+        <label for="loginNickname">Přezdívka</label>
+        <input type="text" id="loginNickname" autocomplete="username" required>
+        <label for="loginPasswordCandidate">Heslo</label>
+        <input type="password" id="loginPasswordCandidate" autocomplete="current-password" required>
+        <button type="submit">Přihlásit uchazeče</button>
+      </form>
+      <div class="regstatus" id="loginCandidateStatus"></div>
+    </div>
+
+    <div id="loginPolicePanel" class="login-panel">
+      <div class="police-warning">
+        🔐 Policista se přihlašuje pomocí <strong>OEČ + jména + hesla</strong>. Ověření příslušnosti může trvat přibližně 3 dny.
+      </div>
+      <form class="regform" id="loginPoliceForm">
+        <label for="loginOec">OEČ</label>
+        <input type="text" id="loginOec" inputmode="numeric" autocomplete="username" required>
+        <label for="loginJmeno">Jméno a příjmení</label>
+        <input type="text" id="loginJmeno" autocomplete="name" required>
+        <label for="loginPasswordPolice">Heslo</label>
+        <input type="password" id="loginPasswordPolice" autocomplete="current-password" required>
+        <button type="submit">Přihlásit kolegu</button>
+      </form>
+      <div class="regstatus" id="loginPoliceStatus"></div>
+    </div>
   </div>
 
   <div class="sechead member-only colleague-only" style="margin-bottom:18px;">
-    <h3 style="font-size:18px;" id="poradnaHeading">Náhled poradny (jen pro ověřené)</h3>
+    <h3 style="font-size:18px;" id="poradnaHeading">Poradna pro ověřené kolegy</h3>
   </div>
   <div class="forumpreview member-only colleague-only" id="forumPreview">
-    <div class="forumpost"><strong>Jak řešíte agresivního řidiče při kontrole sám v noci?</strong><div class="meta">12 odpovědí · dálniční služba</div></div>
-    <div class="forumpost"><strong>Zkušenosti s výběrovým řízením na URNA — na co se ptali</strong><div class="meta">8 odpovědí · zájem o ZJ</div></div>
-    <div class="forumpost"><strong>Na co si dát pozor u opakovaně kontrolovaných osob v regionu</strong><div class="meta">21 odpovědí · pořádková služba</div></div>
-    <div class="lockoverlay" id="lockOverlay"><span class="lockbadge">🔒 Odemkne se po ověření přístupu</span></div>
+    <div class="forumpost"><strong>Uzavřená poradna pro ověřené kolegy</strong><div class="meta">Přístup až po ručním schválení příslušnosti</div></div>
+    <div class="lockoverlay" id="lockOverlay"><span class="lockbadge">🔒 Nejprve je potřeba ověření</span></div>
   </div>
 
-  <!-- Živá poradna — vyplní se po přihlášení + schválení -->
   <div id="livePoradna" class="member-only colleague-only" style="display:none; margin-top:22px;">
     <div class="flowcard" style="margin-bottom:18px;">
       <h3>Nový příspěvek</h3>
@@ -691,6 +729,7 @@
 
   <p class="member-only" style="font-size:13px; color:var(--ink-soft); margin-top:10px;">Poznámka k obsahu: poradna se drží obecných vzorců chování a zkušeností, ne konkrétních jmen třetích osob — kvůli ochraně osobních údajů a předejití pomluvě.</p>
 </section>
+
 
 
 
@@ -792,209 +831,236 @@ const PLAN_LABELS = {
   kolegove: 'Kolegové ve službě — 99 Kč / měsíc'
 };
 
+
 function selectPlan(plan){
   if(!PLAN_LABELS[plan]) return;
   localStorage.setItem('zopacek_selected_plan', plan);
+
   const input = document.getElementById('regPlan');
   const label = document.getElementById('selectedPlanLabel');
   if(input) input.value = plan;
   if(label) label.textContent = PLAN_LABELS[plan];
 
-  const paymentText = document.getElementById('paymentStepText');
-  if(paymentText){
-    paymentText.textContent = `Vybráno: ${PLAN_LABELS[plan]}. Po vytvoření účtu následuje měsíční platba.`;
+  const candidate = document.getElementById('candidateRegistration');
+  const police = document.getElementById('policeRegistration');
+  const candNick = document.getElementById('regNickname');
+  const candPass = document.getElementById('regPasswordCandidate');
+  const policeInputs = ['regOec','regJmeno','regUtvar','regPasswordPolice']
+    .map(id => document.getElementById(id));
+
+  if(plan === 'uchazeci'){
+    candidate.style.display = '';
+    police.style.display = 'none';
+    candNick.required = true;
+    candPass.required = true;
+    policeInputs.forEach(el => el.required = false);
+  } else {
+    candidate.style.display = 'none';
+    police.style.display = '';
+    candNick.required = false;
+    candPass.required = false;
+    policeInputs.forEach(el => el.required = true);
   }
 
-  const section = document.getElementById('overeni');
-  if(section) section.scrollIntoView({behavior:'smooth', block:'start'});
+  document.getElementById('overeni').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 (function restoreSelectedPlan(){
-  const plan = localStorage.getItem('zopacek_selected_plan');
-  if(plan && PLAN_LABELS[plan]){
-    const input = document.getElementById('regPlan');
-    const label = document.getElementById('selectedPlanLabel');
-    if(input) input.value = plan;
-    if(label) label.textContent = PLAN_LABELS[plan];
-  }
+  const plan = localStorage.getItem('zopacek_selected_plan') || 'uchazeci';
+  selectPlan(plan);
 })();
 
-/* ===== REGISTRACE / ČLENSTVÍ ===== */
 document.getElementById('regForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  const status = document.getElementById('regStatus');
-  const plan = document.getElementById('regPlan').value || localStorage.getItem('zopacek_selected_plan') || '';
-  const email = document.getElementById('regEmail').value.trim().toLowerCase();
-  const nickname = document.getElementById('regNickname').value.trim();
-  const password = document.getElementById('regPassword').value;
 
-  if(!PLAN_LABELS[plan] || !email || !nickname || !password){
-    status.className='regstatus show pending';
-    status.textContent='Nejdřív vyber členství a vyplň e-mail, přezdívku a heslo.';
+  const status = document.getElementById('regStatus');
+  const plan = document.getElementById('regPlan').value;
+  status.className='regstatus show pending';
+  status.textContent='Zakládám účet…';
+
+  if(!PLAN_LABELS[plan]){
+    status.textContent='Vyber nejdřív členství.';
     return;
   }
-  if(password.length < 12){
-    status.className='regstatus show pending';
+
+  let body = { plan };
+
+  if(plan === 'uchazeci'){
+    body.nickname = document.getElementById('regNickname').value.trim();
+    body.password = document.getElementById('regPasswordCandidate').value;
+
+    if(!body.nickname || !body.password){
+      status.textContent='Vyplň přezdívku a heslo.';
+      return;
+    }
+  } else {
+    body.oec = document.getElementById('regOec').value.trim();
+    body.jmeno = document.getElementById('regJmeno').value.trim();
+    body.utvar = document.getElementById('regUtvar').value.trim();
+    body.password = document.getElementById('regPasswordPolice').value;
+
+    if(!body.oec || !body.jmeno || !body.utvar || !body.password){
+      status.textContent='Vyplň OEČ, jméno, útvar a heslo.';
+      return;
+    }
+  }
+
+  if(body.password.length < 12){
     status.textContent='Heslo musí mít alespoň 12 znaků.';
     return;
   }
 
-  status.className='regstatus show pending';
-  status.textContent='Zakládám účet…';
-
-  const { data, error } = await sb.auth.signUp({
-    email,
-    password,
-    options: { data: { nickname, membership_plan: plan } }
-  });
+  const { data, error } = await sb.functions.invoke('register-member', { body });
 
   if(error){
     status.className='regstatus show error';
-    status.textContent=/already registered|already exists/i.test(error.message)
-      ? 'Tento e-mail už má účet. Přihlas se nebo použij jiný e-mail.'
-      : 'Nepodařilo se založit účet. Zkontroluj údaje a zkus to znovu.';
+    status.textContent='Účet se nepodařilo vytvořit. Zkontroluj údaje a zkus to znovu.';
     return;
   }
 
-  if(!data.session){
-    status.className='regstatus show pending';
-    status.textContent='Účet byl vytvořen. Potvrď e-mail v Supabase a potom se přihlas.';
-    return;
+  if(data?.access_token && data?.refresh_token){
+    await sb.auth.setSession({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token
+    });
   }
 
-  const { error: intentError } = await sb.functions.invoke('create-membership-intent', {
-    body: { plan, nickname }
-  });
-
-  if(intentError){
-    status.className='regstatus show error';
-    status.textContent='Účet byl vytvořen, ale členství se nepodařilo založit. Přihlas se znovu a zkus to.';
-    return;
-  }
-
-  const paymentStep = document.getElementById('paymentStep');
-  const paymentText = document.getElementById('paymentStepText');
-  if(paymentStep) paymentStep.style.display = '';
-  if(paymentText){
-    paymentText.textContent = `Vybráno: ${PLAN_LABELS[plan]}. Nyní musí následovat platba. Bez potvrzené platby se přístup neodemkne.`;
-  }
+  document.getElementById('paymentStep').style.display='';
+  document.getElementById('paymentStepText').textContent =
+    `Vybráno: ${PLAN_LABELS[plan]}. Dokonči měsíční platbu.`;
 
   status.className='regstatus show success';
   status.textContent = plan === 'uchazeci'
-    ? 'Účet je vytvořen. Po zaplacení se odemkne sekce pro uchazeče.'
-    : 'Účet je vytvořen. Po zaplacení se zobrazí krok pro ověření příslušnosti.';
+    ? 'Účet je vytvořen. Po zaplacení se ihned odemkne sekce pro uchazeče.'
+    : 'Účet je vytvořen. Po zaplacení se ihned odemknou užitečné materiály. Ověření pro poradnu potrvá přibližně 3 dny.';
 
   e.target.reset();
   selectPlan(plan);
+  await checkAccess();
 });
 
-/* Ověření kolegy se posílá AŽ PO ÚSPĚŠNÉ PLATBĚ. */
-document.getElementById('policeVerificationForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const status = document.getElementById('policeVerificationStatus');
-  const oec = document.getElementById('regOec').value.trim();
-  const jmeno = document.getElementById('regJmeno').value.trim();
-  const utvar = document.getElementById('regUtvar').value.trim();
-
-  if(!oec || !jmeno || !utvar){
-    status.className='regstatus show pending';
-    status.textContent='Vyplň OEČ, jméno a útvar.';
+async function startPayment(){
+  const { data: sessionData } = await sb.auth.getSession();
+  if(!sessionData.session){
+    alert('Nejdřív se přihlas nebo dokonči registraci.');
     return;
   }
 
-  status.className='regstatus show pending';
-  status.textContent='Odesílám žádost k ručnímu ověření…';
-
-  const { error } = await sb.functions.invoke('submit-police-verification', {
-    body: { oec, jmeno, utvar }
+  const { data, error } = await sb.functions.invoke('create-checkout-session', {
+    body: {}
   });
 
-  if(error){
-    status.className='regstatus show error';
-    status.textContent='Žádost se nepodařilo odeslat. Zkus to prosím znovu.';
+  if(error || !data?.url){
+    alert('Platební stránka zatím není napojená. Až bude napojený Stripe Checkout, toto tlačítko tě tam přesměruje.');
     return;
   }
-
-  status.className='regstatus show success';
-  status.textContent='Žádost o ověření byla odeslána. Po schválení se odemkne sekce pro kolegy a poradna.';
-  e.target.reset();
-});
-
-/* ===== PŘIHLÁŠENÍ ===== */
-function showLogin(e){
-  if(e) e.preventDefault();
-  const card = document.getElementById('login');
-  card.style.display = '';
-  card.scrollIntoView({behavior:'smooth', block:'center'});
+  window.location.href = data.url;
 }
-function togglePoradnaLogin(e){ showLogin(e); }
 
-document.getElementById('loginForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const status = document.getElementById('loginStatus');
-  status.className='regstatus show pending';
-  status.textContent='Přihlašuji…';
-  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-  const password = document.getElementById('loginPassword').value;
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  if(error){
-    status.textContent='Přihlášení se nezdařilo. Zkontroluj e-mail a heslo.';
+document.getElementById('paymentButton').addEventListener('click', startPayment);
+
+function switchLoginType(type){
+  const candidate = type === 'uchazeci';
+  document.getElementById('loginCandidateTab').classList.toggle('active', candidate);
+  document.getElementById('loginPoliceTab').classList.toggle('active', !candidate);
+  document.getElementById('loginCandidatePanel').classList.toggle('active', candidate);
+  document.getElementById('loginPolicePanel').classList.toggle('active', !candidate);
+}
+
+async function doMemberLogin(body, statusEl){
+  statusEl.className='regstatus show pending';
+  statusEl.textContent='Přihlašuji…';
+
+  const { data, error } = await sb.functions.invoke('login-member', { body });
+
+  if(error || !data?.access_token || !data?.refresh_token){
+    statusEl.className='regstatus show error';
+    statusEl.textContent='Přihlášení se nezdařilo. Zkontroluj přihlašovací údaje.';
     return;
   }
-  status.textContent='Přihlášeno.';
-  await checkApprovalAndLoadPoradna();
+
+  await sb.auth.setSession({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token
+  });
+
+  statusEl.className='regstatus show success';
+  statusEl.textContent='Přihlášeno.';
+  await checkAccess();
+}
+
+document.getElementById('loginCandidateForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  await doMemberLogin({
+    plan:'uchazeci',
+    nickname:document.getElementById('loginNickname').value.trim(),
+    password:document.getElementById('loginPasswordCandidate').value
+  }, document.getElementById('loginCandidateStatus'));
 });
 
-/* ===== PORADNA: KONTROLA SCHVÁLENÍ + NAČTENÍ PŘÍSPĚVKŮ ===== */
-async function checkApprovalAndLoadPoradna(){
+document.getElementById('loginPoliceForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  await doMemberLogin({
+    plan:'kolegove',
+    oec:document.getElementById('loginOec').value.trim(),
+    jmeno:document.getElementById('loginJmeno').value.trim(),
+    password:document.getElementById('loginPasswordPolice').value
+  }, document.getElementById('loginPoliceStatus'));
+});
+
+/* ===== PŘÍSTUP PODLE PLATBY A OVĚŘENÍ ===== */
+async function checkAccess(){
   const { data: sessionData } = await sb.auth.getSession();
   const user = sessionData.session ? sessionData.session.user : null;
   if(!user) return;
 
-  const { data: statusData, error: statusError } = await sb
+  const { data: statusData, error } = await sb
     .from('verification_status')
-    .select('status,plan')
+    .select('status,plan,subscription_status')
     .eq('user_id', user.id)
     .maybeSingle();
 
   const heading = document.getElementById('poradnaHeading');
   const lockOverlay = document.getElementById('lockOverlay');
-  const forumPreview = document.getElementById('forumPreview');
   const livePoradna = document.getElementById('livePoradna');
-  const loginCard = document.getElementById('login');
 
-  if(statusError){
+  if(error){
     heading.textContent='Nepodařilo se ověřit stav účtu.';
     return;
   }
-
   if(!statusData){
-    heading.textContent='Nemáš odeslanou žádost o ověření.';
+    heading.textContent='Účet zatím nemá aktivované členství.';
     return;
   }
 
-  if(statusData.status === 'approved'){
-    heading.textContent='Členství ověřeno';
-    document.querySelectorAll('.member-only').forEach(el => el.classList.remove('member-only'));
-    forumPreview.style.display='none';
-    livePoradna.style.display='';
-    loginCard.style.display='none';
-    await loadPosts();
-  } else if(statusData.status === 'paid' && statusData.plan === 'uchazeci'){
-    heading.textContent='Členství aktivní';
-    document.querySelectorAll('.applicant-only').forEach(el => el.classList.remove('member-only'));
-    loginCard.style.display='none';
-  } else if(statusData.status === 'paid'){
-    heading.textContent='Platba přijata';
-    loginCard.style.display='none';
-  } else if(statusData.status === 'pending_payment'){
-    heading.textContent='Čeká se na platbu';
-    lockOverlay.querySelector('.lockbadge').textContent='💳 Dokonči platbu členství';
-  } else if(statusData.status === 'pending'){
-    heading.textContent='Žádost čeká na schválení';
-    lockOverlay.querySelector('.lockbadge').textContent='⏳ Žádost se ověřuje, zkus to později';
-  } else {
-    heading.textContent='Žádost nebyla schválena';
+  const paid = statusData.subscription_status === 'active' || statusData.status === 'paid' || statusData.status === 'approved';
+  const approved = statusData.status === 'approved' && statusData.plan === 'kolegove';
+
+  /* Placení uživatelé dostanou okamžitě běžný obsah. */
+  if(paid){
+    document.querySelectorAll('.paid-member').forEach(el => el.classList.remove('paid-member'));
+    document.getElementById('paymentStep').style.display='none';
+  }
+
+  if(statusData.plan === 'uchazeci'){
+    heading.textContent = paid ? 'Členství uchazeče je aktivní' : 'Čeká se na platbu';
+    return;
+  }
+
+  if(statusData.plan === 'kolegove'){
+    if(paid && !approved){
+      heading.textContent='Placení členství aktivní — čeká se na ověření';
+      lockOverlay.querySelector('.lockbadge').textContent='⏳ Ověření příslušnosti trvá přibližně 3 dny';
+      document.getElementById('policeVerificationInfo').style.display='';
+    }
+
+    if(approved){
+      heading.textContent='Ověření dokončeno — poradna je odemčená';
+      document.querySelectorAll('.member-only').forEach(el => el.classList.remove('member-only'));
+      livePoradna.style.display='';
+      await loadPosts();
+      document.getElementById('policeVerificationInfo').style.display='none';
+    }
   }
 }
 
@@ -1013,6 +1079,7 @@ async function loadPosts(){
     list.innerHTML = '<div class="forumpost">Zatím tu nikdo nic nenapsal — buď první.</div>';
     return;
   }
+
   list.innerHTML = posts.map(p => `
     <div class="forumpost">
       <strong>${escapeHtml(p.title)}</strong>
@@ -1036,13 +1103,20 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
 
   const { data: sessionData } = await sb.auth.getSession();
   const user = sessionData.session ? sessionData.session.user : null;
-  if(!user){ status.textContent='Nejsi přihlášen.'; return; }
+  if(!user){
+    status.className='regstatus show error';
+    status.textContent='Nejsi přihlášen.';
+    return;
+  }
 
   const title = document.getElementById('postTitle').value.trim();
   const content = document.getElementById('postContent').value.trim();
-  if(!title || !content){ status.textContent='Vyplň nadpis i text.'; return; }
+  if(!title || !content){
+    status.className='regstatus show error';
+    status.textContent='Vyplň nadpis i text.';
+    return;
+  }
 
-  /* RLS na serveru vynutí, že INSERT smí udělat pouze schválený uživatel. */
   const { error } = await sb.from('poradna_posts').insert({
     user_id: user.id,
     title,
@@ -1050,16 +1124,18 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
   });
 
   if(error){
+    status.className='regstatus show error';
     status.textContent='Nepodařilo se přidat příspěvek.';
     return;
   }
+
+  status.className='regstatus show success';
   status.textContent='Příspěvek přidán.';
   e.target.reset();
   await loadPosts();
 });
 
-/* Zkontroluj při načtení stránky, jestli je uživatel už přihlášený */
-checkApprovalAndLoadPoradna();
+checkAccess();
 
 /* WAITLIST DEMO */
 document.getElementById('waitForm').addEventListener('submit',(e)=>{
