@@ -209,6 +209,7 @@
   .price-card h3{font-size:16.5px; margin-bottom:5px;}
   .price-card .price{font-size:28px; font-weight:800; margin:12px 0 4px;}
   .price-card .price span{font-size:13px; font-weight:500; color:var(--ink-soft);}
+  .btc-estimate{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13.5px; color:var(--ink-soft); margin-bottom:6px;}
   .price-card ul{list-style:none; margin:14px 0 18px; font-size:13.5px; color:var(--ink-soft);}
   .price-card li{padding-left:20px; position:relative; margin-bottom:8px;}
   .price-card li::before{content:"✓"; position:absolute; left:0; color:var(--ok); font-weight:700;}
@@ -601,7 +602,8 @@
   <div class="pricing">
     <div class="price-card">
       <h3>Uchazeči</h3>
-      <div class="price">250 Kč <span>měsíčně (v BTC)</span></div>
+      <div class="price">250 Kč <span>měsíčně</span></div>
+      <div class="btc-estimate" id="btcEstimateUchazeci">≈ … BTC / měsíc</div>
       <ul>
         <li>Testy ze zákonů s vysvětlením</li>
         <li>Kalkulačky fyzických testů</li>
@@ -613,7 +615,8 @@
     </div>
     <div class="price-card featured">
       <h3>Kolegové ve službě</h3>
-      <div class="price">158 Kč <span>měsíčně (v BTC)</span></div>
+      <div class="price">158 Kč <span>měsíčně</span></div>
+      <div class="btc-estimate" id="btcEstimateKolegove">≈ … BTC / měsíc</div>
       <ul>
         <li>Fotodokumentační nástroj</li>
         <li>Tabulky rychloměru a alkoholu k tisku</li>
@@ -623,6 +626,7 @@
       <a class="btn-primary" href="#overeni" onclick="selectPlan('kolegove')" style="display:block; text-align:center;">Vybrat členství</a>
     </div>
   </div>
+  <p class="plan-note" id="btcEstimateNote" style="margin-top:10px;">Orientační přepočet podle aktuálního kurzu BTC/CZK, aktualizuje se automaticky nejvýš jednou denně. Přesnou částku k zaplacení uvidíš po registraci.</p>
 </section>
 
 <!-- ============ TIER 3: PORADNA ============ -->
@@ -821,6 +825,43 @@ function oecToInternalId(oec){
 
 <script>
 document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ===== ORIENTAČNÍ BTC CENA NA CENOVÝCH KARTÁCH =====
+   Čte se přímo z veřejně čitelné cache (btc_rate_cache) — funguje i pro
+   nepřihlášeného návštěvníka. Skutečnou přesnou částku k zaplacení pořád
+   počítá jen server při registraci (viz register-payment-request). */
+const MARKETING_PLAN_PRICE_CZK = { uchazeci: 250, kolegove: 158 };
+
+async function renderMarketingBtcEstimates(){
+  const elUchazeci = document.getElementById('btcEstimateUchazeci');
+  const elKolegove = document.getElementById('btcEstimateKolegove');
+  if(!elUchazeci || !elKolegove) return;
+
+  const { data, error } = await sb
+    .from('btc_rate_cache')
+    .select('czk_per_btc, updated_at')
+    .eq('id', true)
+    .maybeSingle();
+
+  if(error || !data || !data.czk_per_btc){
+    elUchazeci.textContent = '';
+    elKolegove.textContent = '';
+    return;
+  }
+
+  const rate = Number(data.czk_per_btc);
+  const btcUchazeci = (MARKETING_PLAN_PRICE_CZK.uchazeci / rate).toFixed(8);
+  const btcKolegove = (MARKETING_PLAN_PRICE_CZK.kolegove / rate).toFixed(8);
+  elUchazeci.textContent = `≈ ${btcUchazeci} BTC / měsíc`;
+  elKolegove.textContent = `≈ ${btcKolegove} BTC / měsíc`;
+
+  const note = document.getElementById('btcEstimateNote');
+  if(note){
+    const updated = new Date(data.updated_at);
+    note.textContent = `Orientační přepočet podle kurzu BTC/CZK ze dne ${updated.toLocaleDateString('cs-CZ')} (aktualizuje se automaticky nejvýš jednou denně). Přesnou částku k zaplacení uvidíš po registraci.`;
+  }
+}
+renderMarketingBtcEstimates();
 
 /* CATEGORY SWITCH (Dopravka / Obvod) */
 function switchCategory(cat){
