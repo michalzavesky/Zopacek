@@ -50,6 +50,51 @@
   .navcta{font-size:14px; font-weight:600; background:var(--blue); color:#fff; padding:9px 16px; text-decoration:none; border-radius:6px; white-space:nowrap;}
   .navcta:hover{background:var(--blue-bright);}
 
+  /* přihlášený stav v hlavičce */
+  .navauth{position:relative;}
+  .navavatar-btn{display:flex; align-items:center; gap:9px; background:#fff; border:1.5px solid var(--line); border-radius:24px; padding:5px 12px 5px 5px; cursor:pointer; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; color:var(--ink);}
+  .navavatar-btn:hover{border-color:var(--blue-bright);}
+  .navavatar{width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:#fff; background:var(--blue); overflow:hidden; flex-shrink:0;}
+  .navavatar img{width:100%; height:100%; object-fit:cover;}
+  .navavatar-name{max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .navavatar-caret{font-size:10px; color:var(--ink-soft);}
+  .navmenu{display:none; position:absolute; top:calc(100% + 8px); right:0; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow-lg); min-width:220px; overflow:hidden; z-index:60;}
+  .navmenu.open{display:block;}
+  .navmenu button{display:block; width:100%; text-align:left; background:none; border:none; padding:12px 16px; font-family:'Inter',sans-serif; font-size:14.5px; color:var(--ink); cursor:pointer;}
+  .navmenu button:hover{background:var(--bg-soft);}
+  .navmenu button + button{border-top:1px solid var(--line);}
+
+  /* modální okna */
+  .modal-overlay{display:none; position:fixed; inset:0; background:rgba(24,29,33,0.5); z-index:100; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff; border-radius:16px; max-width:560px; width:100%; box-shadow:var(--shadow-lg); overflow:hidden;}
+  .modal-head{display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid var(--line);}
+  .modal-head h3{font-size:18px;}
+  .modal-close{background:none; border:none; font-size:22px; line-height:1; cursor:pointer; color:var(--ink-soft); padding:4px;}
+  .modal-close:hover{color:var(--ink);}
+  .modal-body{padding:24px; max-height:70vh; overflow-y:auto;}
+  .modal-body h4{font-size:14.5px; margin:20px 0 10px;}
+  .modal-body h4:first-child{margin-top:0;}
+
+  .avatar-grid{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;}
+  .avatar-option{width:44px; height:44px; border-radius:50%; border:2px solid transparent; background:var(--bg-soft); font-size:20px; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  .avatar-option:hover{border-color:var(--blue-bright);}
+  .avatar-option.selected{border-color:var(--blue); background:var(--blue-soft);}
+  .avatar-upload-row{display:flex; align-items:center; gap:12px; margin-bottom:6px; flex-wrap:wrap;}
+  .avatar-preview{width:56px; height:56px; border-radius:50%; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; overflow:hidden; flex-shrink:0;}
+  .avatar-preview img{width:100%; height:100%; object-fit:cover;}
+
+  .ticket-list{display:flex; flex-direction:column; gap:12px; margin-top:14px;}
+  .ticket-item{border:1px solid var(--line); border-radius:10px; padding:14px 16px;}
+  .ticket-item .subj{font-weight:700; font-size:14.5px; margin-bottom:4px;}
+  .ticket-item .msg{font-size:13.5px; color:var(--ink-soft); margin-bottom:8px; white-space:pre-wrap;}
+  .ticket-item .reply{background:var(--blue-soft); color:var(--blue); border-radius:8px; padding:10px 12px; font-size:13.5px; white-space:pre-wrap;}
+  .ticket-item .tmeta{font-size:12px; color:var(--ink-soft); margin-top:6px;}
+  .ticket-badge{display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; padding:2px 8px; border-radius:20px; margin-left:8px;}
+  .ticket-badge.open{background:var(--warn-soft); color:var(--warn);}
+  .ticket-badge.answered{background:#eef7ef; color:var(--ok);}
+  .ticket-badge.closed{background:var(--bg-soft); color:var(--ink-soft);}
+
   .hero{padding:56px 0 44px; background:var(--bg-soft);}
   .hero .inner{max-width:720px;}
   .hero h1{font-size:36px; line-height:1.16; margin:14px 0 16px;}
@@ -332,9 +377,24 @@
         <a href="#nabidka">Co nabízím</a>
         <a href="#cena">Členství</a>
         <a href="#overeni">Ověření</a>
-        <a href="#login" onclick="showLogin(event)">Přihlášení</a>
       </div>
-      <a class="navcta" href="#cena">Vybrat členství</a>
+
+      <!-- Nepřihlášený stav -->
+      <a class="navcta" id="navLoggedOut" href="#login" onclick="showLogin(event)">Přihlásit se</a>
+
+      <!-- Přihlášený stav -->
+      <div class="navauth" id="navLoggedIn" style="display:none;">
+        <button type="button" class="navavatar-btn" id="navAvatarBtn" onclick="toggleNavMenu(event)">
+          <span class="navavatar" id="navAvatarChip">?</span>
+          <span class="navavatar-name" id="navAvatarName">Účet</span>
+          <span class="navavatar-caret">▾</span>
+        </button>
+        <div class="navmenu" id="navMenu">
+          <button type="button" onclick="openProfileModal(); closeNavMenu();">👤 Profil a nastavení</button>
+          <button type="button" onclick="openSupportModal(); closeNavMenu();">🛟 Technická podpora</button>
+          <button type="button" onclick="handleLogout(); closeNavMenu();">🚪 Odhlásit se</button>
+        </div>
+      </div>
     </nav>
   </div>
 </header>
@@ -742,6 +802,7 @@
         <input type="password" id="loginPasswordCandidate" autocomplete="current-password" required>
         <button type="submit">Přihlásit uchazeče</button>
       </form>
+      <button type="button" class="plan-note" style="background:none; border:none; text-decoration:underline; cursor:pointer; padding:8px 0 0; font-family:'Inter',sans-serif;" onclick="openForgotPasswordModal()">Zapomenuté heslo?</button>
       <div class="regstatus" id="loginCandidateStatus"></div>
     </div>
 
@@ -758,6 +819,7 @@
         <input type="password" id="loginPasswordPolice" autocomplete="current-password" required>
         <button type="submit">Přihlásit kolegu</button>
       </form>
+      <button type="button" class="plan-note" style="background:none; border:none; text-decoration:underline; cursor:pointer; padding:8px 0 0; font-family:'Inter',sans-serif;" onclick="openForgotPasswordModal()">Zapomenuté heslo?</button>
       <div class="regstatus" id="loginPoliceStatus"></div>
     </div>
   </div>
@@ -792,6 +854,86 @@
 
 
 
+
+<!-- ============ MODAL: PROFIL A NASTAVENÍ ============ -->
+<div class="modal-overlay" id="profileModalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Profil a nastavení</h3>
+      <button type="button" class="modal-close" onclick="closeProfileModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <h4>Avatar</h4>
+      <div class="avatar-upload-row">
+        <div class="avatar-preview" id="profileAvatarPreview">?</div>
+        <div>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="handleAvatarFileChange(event)">
+          <button type="button" class="btn-secondary" onclick="document.getElementById('avatarFileInput').click()" style="padding:8px 14px; font-size:13.5px;">Nahrát vlastní fotku</button>
+        </div>
+      </div>
+      <div class="avatar-grid" id="avatarPresetGrid"></div>
+
+      <h4>Základní údaje</h4>
+      <label for="profileDisplayName" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Zobrazované jméno</label>
+      <input type="text" id="profileDisplayName" maxlength="60" placeholder="Jak tě mají ostatní vidět" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); margin-bottom:12px;">
+      <label for="profilePhone" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Telefonní číslo</label>
+      <input type="tel" id="profilePhone" maxlength="20" placeholder="+420 ..." style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); margin-bottom:6px;">
+      <button type="button" class="btn-primary" style="margin-top:10px;" onclick="saveProfile()">Uložit profil</button>
+      <div class="regstatus" id="profileSaveStatus"></div>
+
+      <h4>Změna hesla</h4>
+      <label for="newPassword1" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Nové heslo</label>
+      <input type="password" id="newPassword1" minlength="12" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); margin-bottom:10px;">
+      <label for="newPassword2" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Nové heslo znovu</label>
+      <input type="password" id="newPassword2" minlength="12" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); margin-bottom:6px;">
+      <button type="button" class="btn-secondary" style="margin-top:10px;" onclick="changePassword()">Změnit heslo</button>
+      <div class="regstatus" id="passwordChangeStatus"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: TECHNICKÁ PODPORA ============ -->
+<div class="modal-overlay" id="supportModalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Technická podpora</h3>
+      <button type="button" class="modal-close" onclick="closeSupportModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13.5px; color:var(--ink-soft); margin-bottom:14px;">Napiš, s čím potřebuješ pomoct. Odpovím ti přímo sem, jakmile to uvidím.</p>
+      <label for="supportSubject" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Předmět</label>
+      <input type="text" id="supportSubject" maxlength="120" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); margin-bottom:12px;">
+      <label for="supportMessage" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Zpráva</label>
+      <textarea id="supportMessage" rows="4" maxlength="2000" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); resize:vertical; margin-bottom:6px;"></textarea>
+      <button type="button" class="btn-primary" style="margin-top:10px;" onclick="submitSupportTicket()">Odeslat</button>
+      <div class="regstatus" id="supportSendStatus"></div>
+
+      <h4>Tvoje dosavadní zprávy</h4>
+      <div class="ticket-list" id="supportTicketList"><p style="font-size:13.5px; color:var(--ink-soft);">Zatím nic.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: ZAPOMENUTÉ HESLO ============ -->
+<div class="modal-overlay" id="forgotPasswordModalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Zapomenuté heslo</h3>
+      <button type="button" class="modal-close" onclick="closeForgotPasswordModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13.5px; color:var(--ink-soft); margin-bottom:14px;">Účty tu nemají e-mail, takže heslo nejde resetovat automaticky odkazem. Napiš mi sem, kdo jsi (přezdívka nebo OEČ) a klidně i telefon pro ověření — heslo ti ručně nastavím a dám vědět.</p>
+      <label for="forgotIdentifier" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Přezdívka nebo OEČ</label>
+      <input type="text" id="forgotIdentifier" maxlength="120" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); margin-bottom:12px;">
+      <label for="forgotPhone" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Telefon pro spojení (nepovinné)</label>
+      <input type="tel" id="forgotPhone" maxlength="20" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); margin-bottom:12px;">
+      <label for="forgotMessage" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Poznámka</label>
+      <textarea id="forgotMessage" rows="3" maxlength="500" placeholder="např. jaký plán máš zaplacený, cokoliv na ověření" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); resize:vertical; margin-bottom:6px;"></textarea>
+      <button type="button" class="btn-primary" style="margin-top:10px;" onclick="submitForgotPassword()">Odeslat žádost</button>
+      <div class="regstatus" id="forgotPasswordStatus"></div>
+    </div>
+  </div>
+</div>
 
 <footer>
   <div class="wrap">
@@ -1207,12 +1349,13 @@ async function checkAccess(){
   const user = sessionData.session ? sessionData.session.user : null;
   if(!user){
     applyGating(null, 'inactive');
+    renderNavAuth(null, null);
     return;
   }
 
   const { data: reqData, error } = await sb
     .from('verification_requests')
-    .select('status,plan,subscription_status,expected_sats')
+    .select('status,plan,subscription_status,expected_sats,nickname,display_name,phone,avatar_key,avatar_color,avatar_url')
     .eq('user_id', user.id)
     .maybeSingle();
 
@@ -1228,9 +1371,11 @@ async function checkAccess(){
   if(error || !reqData){
     if(heading) heading.textContent = 'Nemáš odeslanou žádost o ověření.';
     applyGating(null, 'inactive');
+    renderNavAuth(user, null);
     return;
   }
 
+  renderNavAuth(user, reqData);
   applyGating(reqData.plan, reqData.subscription_status);
 
   if(paymentStep){
@@ -1270,6 +1415,358 @@ async function checkAccess(){
 }
 
 checkAccess();
+
+/* ================================================================
+   PROFIL, NAV MENU, PODPORA, ZMĚNA HESLA, ZAPOMENUTÉ HESLO
+   ================================================================ */
+
+const AVATAR_PRESETS = ['🚓','👮‍♂️','👮‍♀️','🎓','🛡️','⭐','🚨','📋','🔑','🧭','🐾','🚦'];
+const AVATAR_COLORS = ['#12395e','#1c5590','#7c8f00','#a63d26','#2f6b39','#8a5a12'];
+let currentReqData = null; // poslední načtená žádost přihlášeného uživatele
+
+function colorForUser(userId){
+  let hash = 0;
+  for(let i=0;i<userId.length;i++) hash = (hash*31 + userId.charCodeAt(i)) >>> 0;
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+}
+
+function displayNameFor(reqData){
+  if(reqData.display_name) return reqData.display_name;
+  if(reqData.nickname) return reqData.nickname;
+  if(reqData.plan === 'kolegove') return 'Kolega';
+  return 'Účet';
+}
+
+/* ===== NAV WIDGET (přihlášený / nepřihlášený stav) ===== */
+function renderNavAuth(user, reqData){
+  const loggedOutEl = document.getElementById('navLoggedOut');
+  const loggedInEl = document.getElementById('navLoggedIn');
+  if(!user || !reqData){
+    if(loggedOutEl) loggedOutEl.style.display = '';
+    if(loggedInEl) loggedInEl.style.display = 'none';
+    currentReqData = null;
+    return;
+  }
+  currentReqData = reqData;
+  if(loggedOutEl) loggedOutEl.style.display = 'none';
+  if(loggedInEl) loggedInEl.style.display = '';
+
+  const chip = document.getElementById('navAvatarChip');
+  const nameEl = document.getElementById('navAvatarName');
+  if(nameEl) nameEl.textContent = displayNameFor(reqData);
+  if(chip) renderAvatarInto(chip, reqData, user.id, 15);
+}
+
+function renderAvatarInto(el, reqData, userId, fontSize){
+  el.innerHTML = '';
+  el.style.background = reqData.avatar_color || colorForUser(userId);
+  if(reqData.avatar_url){
+    const img = document.createElement('img');
+    img.src = reqData.avatar_url;
+    img.alt = 'Profilová fotka';
+    el.appendChild(img);
+  } else if(reqData.avatar_key){
+    el.textContent = reqData.avatar_key;
+    el.style.fontSize = (fontSize || 18) + 'px';
+  } else {
+    const name = displayNameFor(reqData);
+    el.textContent = name.charAt(0).toUpperCase();
+    el.style.fontSize = (fontSize || 18) + 'px';
+    el.style.color = '#fff';
+    el.style.fontWeight = '700';
+  }
+}
+
+function toggleNavMenu(e){
+  if(e) e.stopPropagation();
+  document.getElementById('navMenu').classList.toggle('open');
+}
+function closeNavMenu(){
+  document.getElementById('navMenu').classList.remove('open');
+}
+document.addEventListener('click', (e)=>{
+  const menu = document.getElementById('navMenu');
+  const btn = document.getElementById('navAvatarBtn');
+  if(menu && menu.classList.contains('open') && !menu.contains(e.target) && e.target !== btn){
+    closeNavMenu();
+  }
+});
+
+async function handleLogout(){
+  await sb.auth.signOut();
+  await checkAccess();
+}
+
+/* ===== MODAL HELPERS ===== */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(overlay=>{
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) overlay.classList.remove('open'); });
+});
+
+/* ===== PROFIL MODAL ===== */
+let selectedAvatarKey = null;
+
+function renderAvatarPresetGrid(){
+  const grid = document.getElementById('avatarPresetGrid');
+  grid.innerHTML = '';
+  AVATAR_PRESETS.forEach(emoji=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'avatar-option' + (selectedAvatarKey === emoji ? ' selected' : '');
+    btn.textContent = emoji;
+    btn.onclick = ()=>{
+      selectedAvatarKey = emoji;
+      document.querySelectorAll('.avatar-option').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      updateAvatarPreview({ avatar_key: emoji, avatar_url: null, avatar_color: currentReqData ? currentReqData.avatar_color : null });
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function updateAvatarPreview(reqDataLike){
+  const preview = document.getElementById('profileAvatarPreview');
+  renderAvatarInto(preview, reqDataLike, (currentReqData && currentReqData.__uid) || 'preview', 24);
+}
+
+async function openProfileModal(){
+  const { data: sessionData } = await sb.auth.getSession();
+  const user = sessionData.session ? sessionData.session.user : null;
+  if(!user || !currentReqData) return;
+
+  selectedAvatarKey = currentReqData.avatar_key || null;
+  renderAvatarPresetGrid();
+  updateAvatarPreview({ ...currentReqData, avatar_key: selectedAvatarKey });
+
+  document.getElementById('profileDisplayName').value = currentReqData.display_name || '';
+  document.getElementById('profilePhone').value = currentReqData.phone || '';
+  document.getElementById('profileSaveStatus').className = 'regstatus';
+  document.getElementById('passwordChangeStatus').className = 'regstatus';
+  document.getElementById('newPassword1').value = '';
+  document.getElementById('newPassword2').value = '';
+
+  openModal('profileModalOverlay');
+}
+function closeProfileModal(){ closeModal('profileModalOverlay'); }
+
+async function handleAvatarFileChange(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const { data: sessionData } = await sb.auth.getSession();
+  const user = sessionData.session ? sessionData.session.user : null;
+  if(!user) return;
+
+  const status = document.getElementById('profileSaveStatus');
+  status.className = 'regstatus show pending';
+  status.textContent = 'Nahrávám fotku…';
+
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().slice(0,5);
+  const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await sb.storage.from('avatars').upload(path, file, { upsert: true, cacheControl: '3600' });
+  if(uploadError){
+    status.className = 'regstatus show error';
+    status.textContent = 'Nahrání se nezdařilo: ' + uploadError.message;
+    return;
+  }
+
+  const { data: urlData } = sb.storage.from('avatars').getPublicUrl(path);
+  const publicUrl = urlData.publicUrl;
+
+  selectedAvatarKey = null; // nahraná fotka má přednost před emoji
+  updateAvatarPreview({ avatar_url: publicUrl, avatar_key: null, avatar_color: currentReqData ? currentReqData.avatar_color : null });
+
+  const { data: fnData, error: fnError } = await sb.functions.invoke('update-profile', { body: { avatar_url: publicUrl, avatar_key: null } });
+  if(fnError || (fnData && fnData.error)){
+    status.className = 'regstatus show error';
+    status.textContent = 'Fotka nahrána, ale neuložila se k profilu: ' + (fnError ? fnError.message : fnData.error);
+    return;
+  }
+  status.className = 'regstatus show success';
+  status.textContent = 'Fotka uložena.';
+  await checkAccess();
+}
+
+async function saveProfile(){
+  const status = document.getElementById('profileSaveStatus');
+  status.className = 'regstatus show pending';
+  status.textContent = 'Ukládám…';
+
+  const displayName = document.getElementById('profileDisplayName').value.trim();
+  const phone = document.getElementById('profilePhone').value.trim();
+  const avatarColor = currentReqData && currentReqData.avatar_color ? currentReqData.avatar_color : null;
+
+  const payload = { display_name: displayName, phone };
+  if(selectedAvatarKey){
+    payload.avatar_key = selectedAvatarKey;
+    payload.avatar_url = null; // vybrané emoji přepíše dřívější nahranou fotku
+  }
+  if(!avatarColor){
+    const { data: sessionData } = await sb.auth.getSession();
+    if(sessionData.session) payload.avatar_color = colorForUser(sessionData.session.user.id);
+  }
+
+  const { data, error } = await sb.functions.invoke('update-profile', { body: payload });
+  if(error || (data && data.error)){
+    status.className = 'regstatus show error';
+    status.textContent = 'Nepodařilo se uložit: ' + (error ? error.message : data.error);
+    return;
+  }
+  status.className = 'regstatus show success';
+  status.textContent = 'Profil uložen.';
+  await checkAccess();
+}
+
+async function changePassword(){
+  const status = document.getElementById('passwordChangeStatus');
+  const p1 = document.getElementById('newPassword1').value;
+  const p2 = document.getElementById('newPassword2').value;
+  if(p1.length < 12){
+    status.className = 'regstatus show error';
+    status.textContent = 'Heslo musí mít alespoň 12 znaků.';
+    return;
+  }
+  if(p1 !== p2){
+    status.className = 'regstatus show error';
+    status.textContent = 'Hesla se neshodují.';
+    return;
+  }
+  status.className = 'regstatus show pending';
+  status.textContent = 'Měním heslo…';
+  const { error } = await sb.auth.updateUser({ password: p1 });
+  if(error){
+    status.className = 'regstatus show error';
+    status.textContent = 'Nepodařilo se změnit heslo: ' + error.message;
+    return;
+  }
+  status.className = 'regstatus show success';
+  status.textContent = 'Heslo změněno.';
+  document.getElementById('newPassword1').value = '';
+  document.getElementById('newPassword2').value = '';
+}
+
+/* ===== TECHNICKÁ PODPORA (admin_inbox, type='support') ===== */
+async function openSupportModal(){
+  document.getElementById('supportSendStatus').className = 'regstatus';
+  document.getElementById('supportSubject').value = '';
+  document.getElementById('supportMessage').value = '';
+  openModal('supportModalOverlay');
+  await loadSupportTickets();
+}
+function closeSupportModal(){ closeModal('supportModalOverlay'); }
+
+async function submitSupportTicket(){
+  const status = document.getElementById('supportSendStatus');
+  const subject = document.getElementById('supportSubject').value.trim();
+  const message = document.getElementById('supportMessage').value.trim();
+  if(!subject || !message){
+    status.className = 'regstatus show error';
+    status.textContent = 'Vyplň předmět i zprávu.';
+    return;
+  }
+  const { data: sessionData } = await sb.auth.getSession();
+  const user = sessionData.session ? sessionData.session.user : null;
+  if(!user){
+    status.className = 'regstatus show error';
+    status.textContent = 'Nejsi přihlášen.';
+    return;
+  }
+  status.className = 'regstatus show pending';
+  status.textContent = 'Odesílám…';
+
+  const { error } = await sb.from('admin_inbox').insert({
+    type: 'support',
+    user_id: user.id,
+    subject,
+    message
+  });
+  if(error){
+    status.className = 'regstatus show error';
+    status.textContent = 'Nepodařilo se odeslat: ' + error.message;
+    return;
+  }
+  status.className = 'regstatus show success';
+  status.textContent = 'Odesláno. Odpovím sem, jakmile to uvidím.';
+  document.getElementById('supportSubject').value = '';
+  document.getElementById('supportMessage').value = '';
+  await loadSupportTickets();
+}
+
+async function loadSupportTickets(){
+  const list = document.getElementById('supportTicketList');
+  const { data: sessionData } = await sb.auth.getSession();
+  const user = sessionData.session ? sessionData.session.user : null;
+  if(!user){ list.innerHTML = ''; return; }
+
+  const { data: tickets, error } = await sb
+    .from('admin_inbox')
+    .select('id,subject,message,admin_reply,status,created_at')
+    .eq('user_id', user.id)
+    .eq('type', 'support')
+    .order('created_at', { ascending: false });
+
+  if(error){
+    list.innerHTML = `<p style="font-size:13.5px; color:var(--err);">Nepodařilo se načíst zprávy: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+  if(!tickets || tickets.length === 0){
+    list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Zatím nic.</p>';
+    return;
+  }
+  const statusLabel = { open: 'čeká na odpověď', answered: 'zodpovězeno', closed: 'uzavřeno' };
+  list.innerHTML = tickets.map(t => `
+    <div class="ticket-item">
+      <div class="subj">${escapeHtml(t.subject)}<span class="ticket-badge ${t.status}">${statusLabel[t.status] || t.status}</span></div>
+      <div class="msg">${escapeHtml(t.message)}</div>
+      ${t.admin_reply ? `<div class="reply"><strong>Odpověď:</strong><br>${escapeHtml(t.admin_reply)}</div>` : ''}
+      <div class="tmeta">${new Date(t.created_at).toLocaleString('cs-CZ')}</div>
+    </div>
+  `).join('');
+}
+
+/* ===== ZAPOMENUTÉ HESLO (admin_inbox, type='password_reset') =====
+   Funguje i bez přihlášení — schválně, bereš to ručně přes Supabase Studio. */
+function openForgotPasswordModal(){
+  document.getElementById('forgotPasswordStatus').className = 'regstatus';
+  document.getElementById('forgotIdentifier').value = '';
+  document.getElementById('forgotPhone').value = '';
+  document.getElementById('forgotMessage').value = '';
+  openModal('forgotPasswordModalOverlay');
+}
+function closeForgotPasswordModal(){ closeModal('forgotPasswordModalOverlay'); }
+
+async function submitForgotPassword(){
+  const status = document.getElementById('forgotPasswordStatus');
+  const identifier = document.getElementById('forgotIdentifier').value.trim();
+  const phone = document.getElementById('forgotPhone').value.trim();
+  const message = document.getElementById('forgotMessage').value.trim();
+  if(!identifier){
+    status.className = 'regstatus show error';
+    status.textContent = 'Vyplň přezdívku nebo OEČ, ať tě umím najít.';
+    return;
+  }
+  status.className = 'regstatus show pending';
+  status.textContent = 'Odesílám…';
+
+  const { data: sessionData } = await sb.auth.getSession();
+  const user = sessionData.session ? sessionData.session.user : null;
+
+  const { error } = await sb.from('admin_inbox').insert({
+    type: 'password_reset',
+    user_id: user ? user.id : null,
+    identifier,
+    contact_phone: phone || null,
+    message: message || '(bez poznámky)'
+  });
+  if(error){
+    status.className = 'regstatus show error';
+    status.textContent = 'Nepodařilo se odeslat: ' + error.message;
+    return;
+  }
+  status.className = 'regstatus show success';
+  status.textContent = 'Odesláno. Ozvu se ti, jakmile heslo nastavím.';
+}
 
 /* ===== NAČTENÍ A PŘIDÁVÁNÍ PŘÍSPĚVKŮ V PORADNĚ ===== */
 async function loadPosts(){
