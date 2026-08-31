@@ -95,6 +95,67 @@
   .ticket-badge.answered{background:#eef7ef; color:var(--ok);}
   .ticket-badge.closed{background:var(--bg-soft); color:var(--ink-soft);}
 
+  /* ===== PLOVOUCÍ CHAT WIDGET ===== */
+  .chat-bubble-btn{
+    position:fixed; bottom:22px; right:22px; z-index:90;
+    width:58px; height:58px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--blue); color:#fff; font-size:26px; display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--shadow-lg); transition:transform .15s ease, background .15s ease;
+  }
+  .chat-bubble-btn:hover{background:var(--blue-bright); transform:scale(1.05);}
+  .chat-bubble-badge{
+    position:absolute; top:-4px; right:-4px; background:var(--err); color:#fff; font-size:11px; font-weight:800;
+    min-width:20px; height:20px; border-radius:10px; display:flex; align-items:center; justify-content:center; padding:0 5px;
+    border:2px solid #fff;
+  }
+  @keyframes chatPulse{0%{box-shadow:0 0 0 0 rgba(166,61,38,0.5);}70%{box-shadow:0 0 0 10px rgba(166,61,38,0);}100%{box-shadow:0 0 0 0 rgba(166,61,38,0);}}
+  .chat-bubble-btn.has-unread{animation:chatPulse 1.8s infinite;}
+
+  .chat-panel{
+    position:fixed; bottom:92px; right:22px; z-index:90; width:360px; max-width:calc(100vw - 32px);
+    height:480px; max-height:calc(100vh - 130px); background:#fff; border-radius:16px; box-shadow:var(--shadow-lg);
+    display:none; flex-direction:column; overflow:hidden; border:1px solid var(--line);
+  }
+  .chat-panel.open{display:flex;}
+  .chat-panel.admin-mode{width:min(820px, calc(100vw - 32px)); height:min(620px, calc(100vh - 130px));}
+  .chat-panel-head{background:var(--blue); color:#fff; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;}
+  .chat-panel-head .t{font-weight:700; font-size:14.5px;}
+  .chat-panel-head .s{font-size:11.5px; color:rgba(255,255,255,0.75);}
+  .chat-panel-close{background:none; border:none; color:#fff; font-size:20px; cursor:pointer; line-height:1;}
+  .chat-panel-body{flex:1; display:flex; overflow:hidden;}
+
+  .chat-conv-list{width:230px; flex-shrink:0; border-right:1px solid var(--line); overflow-y:auto; background:var(--bg-soft); display:none;}
+  .chat-panel.admin-mode .chat-conv-list{display:block;}
+  .chat-conv-item{padding:12px 14px; border-bottom:1px solid var(--line); cursor:pointer; display:flex; gap:10px; align-items:center;}
+  .chat-conv-item:hover{background:#fff;}
+  .chat-conv-item.active{background:var(--blue-soft);}
+  .chat-conv-avatar{width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px; overflow:hidden;}
+  .chat-conv-avatar img{width:100%; height:100%; object-fit:cover;}
+  .chat-conv-meta{min-width:0; flex:1;}
+  .chat-conv-name{font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .chat-conv-snippet{font-size:12px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .chat-conv-dot{width:9px; height:9px; border-radius:50%; background:var(--err); flex-shrink:0;}
+
+  .chat-thread{flex:1; display:flex; flex-direction:column; min-width:0;}
+  .chat-messages{flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:8px;}
+  .chat-msg{max-width:78%; padding:9px 13px; border-radius:14px; font-size:14px; line-height:1.4; white-space:pre-wrap; word-break:break-word;}
+  .chat-msg.from-user{align-self:flex-start; background:var(--bg-soft); color:var(--ink); border-bottom-left-radius:4px;}
+  .chat-msg.from-admin{align-self:flex-end; background:var(--blue); color:#fff; border-bottom-right-radius:4px;}
+  .chat-msg .time{display:block; font-size:10.5px; opacity:0.65; margin-top:3px;}
+  .chat-empty{margin:auto; text-align:center; padding:20px; font-size:13.5px; color:var(--ink-soft);}
+  .chat-input-row{display:flex; gap:8px; padding:10px; border-top:1px solid var(--line); flex-shrink:0;}
+  .chat-input-row textarea{flex:1; resize:none; border:1.5px solid #b9beb2; border-radius:10px; padding:9px 12px; font-family:'Inter',sans-serif; font-size:14px; background:var(--bg-soft); max-height:80px;}
+  .chat-input-row button{background:var(--blue); color:#fff; border:none; border-radius:10px; padding:0 16px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;}
+  .chat-input-row button:hover{background:var(--blue-bright);}
+  .chat-login-prompt{margin:auto; text-align:center; padding:24px; font-size:14px; color:var(--ink-soft);}
+
+  @media(max-width:480px){
+    .chat-panel{right:10px; left:10px; width:auto; bottom:82px;}
+    .chat-panel.admin-mode{width:auto;}
+    .chat-conv-list{width:150px;}
+    .chat-bubble-btn{right:16px; bottom:16px;}
+  }
+
   .hero{padding:56px 0 44px; background:var(--bg-soft);}
   .hero .inner{max-width:720px;}
   .hero h1{font-size:36px; line-height:1.16; margin:14px 0 16px;}
@@ -391,7 +452,7 @@
         </button>
         <div class="navmenu" id="navMenu">
           <button type="button" onclick="openProfileModal(); closeNavMenu();">👤 Profil a nastavení</button>
-          <button type="button" onclick="openSupportModal(); closeNavMenu();">🛟 Technická podpora</button>
+          <button type="button" onclick="openChatWidget(); closeNavMenu();">🛟 Technická podpora</button>
           <button type="button" onclick="handleLogout(); closeNavMenu();">🚪 Odhlásit se</button>
         </div>
       </div>
@@ -892,28 +953,6 @@
   </div>
 </div>
 
-<!-- ============ MODAL: TECHNICKÁ PODPORA ============ -->
-<div class="modal-overlay" id="supportModalOverlay">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h3>Technická podpora</h3>
-      <button type="button" class="modal-close" onclick="closeSupportModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:13.5px; color:var(--ink-soft); margin-bottom:14px;">Napiš, s čím potřebuješ pomoct. Odpovím ti přímo sem, jakmile to uvidím.</p>
-      <label for="supportSubject" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Předmět</label>
-      <input type="text" id="supportSubject" maxlength="120" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); margin-bottom:12px;">
-      <label for="supportMessage" style="font-size:13.5px; font-weight:600; display:block; margin-bottom:6px;">Zpráva</label>
-      <textarea id="supportMessage" rows="4" maxlength="2000" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); resize:vertical; margin-bottom:6px;"></textarea>
-      <button type="button" class="btn-primary" style="margin-top:10px;" onclick="submitSupportTicket()">Odeslat</button>
-      <div class="regstatus" id="supportSendStatus"></div>
-
-      <h4>Tvoje dosavadní zprávy</h4>
-      <div class="ticket-list" id="supportTicketList"><p style="font-size:13.5px; color:var(--ink-soft);">Zatím nic.</p></div>
-    </div>
-  </div>
-</div>
-
 <!-- ============ MODAL: ZAPOMENUTÉ HESLO ============ -->
 <div class="modal-overlay" id="forgotPasswordModalOverlay">
   <div class="modal-box">
@@ -931,6 +970,36 @@
       <textarea id="forgotMessage" rows="3" maxlength="500" placeholder="např. jaký plán máš zaplacený, cokoliv na ověření" style="width:100%; padding:11px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); resize:vertical; margin-bottom:6px;"></textarea>
       <button type="button" class="btn-primary" style="margin-top:10px;" onclick="submitForgotPassword()">Odeslat žádost</button>
       <div class="regstatus" id="forgotPasswordStatus"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PLOVOUCÍ CHAT WIDGET ============ -->
+<button type="button" class="chat-bubble-btn" id="chatBubbleBtn" onclick="toggleChatWidget()">
+  💬
+  <span class="chat-bubble-badge" id="chatBubbleBadge" style="display:none;">0</span>
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-panel-head">
+    <div>
+      <div class="t" id="chatPanelTitle">Technická podpora</div>
+      <div class="s" id="chatPanelSubtitle">Obvykle odpovím do pár hodin</div>
+    </div>
+    <button type="button" class="chat-panel-close" onclick="toggleChatWidget()">×</button>
+  </div>
+  <div class="chat-panel-body">
+    <div class="chat-conv-list" id="chatConvList"></div>
+    <div class="chat-thread" id="chatThreadArea">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-login-prompt" id="chatLoginPrompt">
+          Pro chat s podporou se nejdřív <a href="#login" onclick="toggleChatWidget(); showLogin(event);">přihlas</a>.
+        </div>
+      </div>
+      <div class="chat-input-row" id="chatInputRow" style="display:none;">
+        <textarea id="chatInput" rows="1" placeholder="Napiš zprávu…" onkeydown="handleChatInputKey(event)"></textarea>
+        <button type="button" onclick="sendChatMessage()">Odeslat</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1336,10 +1405,10 @@ document.getElementById('loginPoliceForm').addEventListener('submit', async (e)=
    Sekce s data-plan="kolegove" (praktické nástroje) se odemkne, jen když
    je přihlášený uživatel v plánu 'kolegove' A jeho subscription_status
    je 'active' (potvrzená BTC platba). */
-function applyGating(userPlan, subscriptionStatus){
+function applyGating(userPlan, subscriptionStatus, isAdmin){
   document.querySelectorAll('.gatewrap').forEach(el => {
     const gatePlan = el.dataset.plan;
-    const unlocked = userPlan === gatePlan && subscriptionStatus === 'active';
+    const unlocked = isAdmin || (userPlan === gatePlan && subscriptionStatus === 'active');
     el.classList.toggle('locked', !unlocked);
   });
 }
@@ -1350,12 +1419,13 @@ async function checkAccess(){
   if(!user){
     applyGating(null, 'inactive');
     renderNavAuth(null, null);
+    await initChatForUser(null, null);
     return;
   }
 
   const { data: reqData, error } = await sb
     .from('verification_requests')
-    .select('status,plan,subscription_status,expected_sats,nickname,display_name,phone,avatar_key,avatar_color,avatar_url')
+    .select('status,plan,subscription_status,expected_sats,nickname,display_name,phone,avatar_key,avatar_color,avatar_url,is_admin')
     .eq('user_id', user.id)
     .maybeSingle();
 
@@ -1372,11 +1442,13 @@ async function checkAccess(){
     if(heading) heading.textContent = 'Nemáš odeslanou žádost o ověření.';
     applyGating(null, 'inactive');
     renderNavAuth(user, null);
+    await initChatForUser(null, null);
     return;
   }
 
   renderNavAuth(user, reqData);
-  applyGating(reqData.plan, reqData.subscription_status);
+  await initChatForUser(user, reqData);
+  applyGating(reqData.plan, reqData.subscription_status, reqData.is_admin);
 
   if(paymentStep){
     paymentStep.style.display = '';
@@ -1644,85 +1716,6 @@ async function changePassword(){
   status.textContent = 'Heslo změněno.';
   document.getElementById('newPassword1').value = '';
   document.getElementById('newPassword2').value = '';
-}
-
-/* ===== TECHNICKÁ PODPORA (admin_inbox, type='support') ===== */
-async function openSupportModal(){
-  document.getElementById('supportSendStatus').className = 'regstatus';
-  document.getElementById('supportSubject').value = '';
-  document.getElementById('supportMessage').value = '';
-  openModal('supportModalOverlay');
-  await loadSupportTickets();
-}
-function closeSupportModal(){ closeModal('supportModalOverlay'); }
-
-async function submitSupportTicket(){
-  const status = document.getElementById('supportSendStatus');
-  const subject = document.getElementById('supportSubject').value.trim();
-  const message = document.getElementById('supportMessage').value.trim();
-  if(!subject || !message){
-    status.className = 'regstatus show error';
-    status.textContent = 'Vyplň předmět i zprávu.';
-    return;
-  }
-  const { data: sessionData } = await sb.auth.getSession();
-  const user = sessionData.session ? sessionData.session.user : null;
-  if(!user){
-    status.className = 'regstatus show error';
-    status.textContent = 'Nejsi přihlášen.';
-    return;
-  }
-  status.className = 'regstatus show pending';
-  status.textContent = 'Odesílám…';
-
-  const { error } = await sb.from('admin_inbox').insert({
-    type: 'support',
-    user_id: user.id,
-    subject,
-    message
-  });
-  if(error){
-    status.className = 'regstatus show error';
-    status.textContent = 'Nepodařilo se odeslat: ' + error.message;
-    return;
-  }
-  status.className = 'regstatus show success';
-  status.textContent = 'Odesláno. Odpovím sem, jakmile to uvidím.';
-  document.getElementById('supportSubject').value = '';
-  document.getElementById('supportMessage').value = '';
-  await loadSupportTickets();
-}
-
-async function loadSupportTickets(){
-  const list = document.getElementById('supportTicketList');
-  const { data: sessionData } = await sb.auth.getSession();
-  const user = sessionData.session ? sessionData.session.user : null;
-  if(!user){ list.innerHTML = ''; return; }
-
-  const { data: tickets, error } = await sb
-    .from('admin_inbox')
-    .select('id,subject,message,admin_reply,status,created_at')
-    .eq('user_id', user.id)
-    .eq('type', 'support')
-    .order('created_at', { ascending: false });
-
-  if(error){
-    list.innerHTML = `<p style="font-size:13.5px; color:var(--err);">Nepodařilo se načíst zprávy: ${escapeHtml(error.message)}</p>`;
-    return;
-  }
-  if(!tickets || tickets.length === 0){
-    list.innerHTML = '<p style="font-size:13.5px; color:var(--ink-soft);">Zatím nic.</p>';
-    return;
-  }
-  const statusLabel = { open: 'čeká na odpověď', answered: 'zodpovězeno', closed: 'uzavřeno' };
-  list.innerHTML = tickets.map(t => `
-    <div class="ticket-item">
-      <div class="subj">${escapeHtml(t.subject)}<span class="ticket-badge ${t.status}">${statusLabel[t.status] || t.status}</span></div>
-      <div class="msg">${escapeHtml(t.message)}</div>
-      ${t.admin_reply ? `<div class="reply"><strong>Odpověď:</strong><br>${escapeHtml(t.admin_reply)}</div>` : ''}
-      <div class="tmeta">${new Date(t.created_at).toLocaleString('cs-CZ')}</div>
-    </div>
-  `).join('');
 }
 
 /* ===== ZAPOMENUTÉ HESLO (admin_inbox, type='password_reset') =====
