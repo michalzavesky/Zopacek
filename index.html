@@ -27,7 +27,7 @@
   h1,h2,h3{font-weight:800; letter-spacing:-0.01em; color:var(--ink);}
   .eyebrow{font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue-bright);}
 
-  /* prototype bannewr */
+  /* prototype banner */
   .protobanner{background:var(--warn-soft); color:var(--warn); font-size:13.5px; text-align:center; padding:9px 16px; border-bottom:1px solid #e9d9ae;}
 
   .battenburg{
@@ -94,6 +94,9 @@
   .ticket-badge.open{background:var(--warn-soft); color:var(--warn);}
   .ticket-badge.answered{background:#eef7ef; color:var(--ok);}
   .ticket-badge.closed{background:var(--bg-soft); color:var(--ink-soft);}
+
+  /* ===== ADMIN INBOX (reset hesla) V RÁMCI ADMIN REŽIMU ===== */
+  .admin-inbox-list{overflow-y:auto; padding:16px 24px;}
 
   /* ===== PLOVOUCÍ CHAT WIDGET ===== */
   .chat-bubble-btn{
@@ -1487,6 +1490,274 @@ async function checkAccess(){
 }
 
 checkAccess();
+
+/* ================================================================
+   PLOVOUCÍ CHAT (uživatel) / ADMIN DASHBOARD (pro is_admin účet)
+   Sdílí jeden panel (#chatPanel) — pro admina se přepne do
+   .admin-mode a zobrazí seznam konverzací navíc.
+   ================================================================ */
+let isAdminUserGlobal = false;
+let activeThreadId = null;
+let chatMessageChannel = null;
+let chatUnreadCount = 0;
+
+function isChatPanelOpen(){
+  return document.getElementById('chatPanel').classList.contains('open');
+}
+
+function teardownChatRealtime(){
+  if(chatMessageChannel){ sb.removeChannel(chatMessageChannel); chatMessageChannel = null; }
+}
+
+function playNotifySound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 880;
+    g.gain.value = 0.18;
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    setTimeout(()=>{ o.stop(); ctx.close(); }, 180);
+  }catch(e){ /* ticho, pokud prohlížeč zvuk nedovolí bez interakce */ }
+}
+
+function showChatUnreadBadge(){
+  chatUnreadCount++;
+  const badge = document.getElementById('chatBubbleBadge');
+  badge.textContent = chatUnreadCount > 9 ? '9+' : String(chatUnreadCount);
+  badge.style.display = 'flex';
+  document.getElementById('chatBubbleBtn').classList.add('has-unread');
+}
+function clearChatUnreadBadge(){
+  chatUnreadCount = 0;
+  document.getElementById('chatBubbleBadge').style.display = 'none';
+  document.getElementById('chatBubbleBtn').classList.remove('has-unread');
+}
+
+/* ===== VOLÁNO Z checkAccess() PŘI KAŽDÉM PŘIHLÁŠENÍ/ODHLÁŠENÍ =====
+   Nastaví roli (uživatel/admin) a rovnou přihlásí realtime odběr,
+   aby fungovalo upozornění i se zavřeným panelem. */
+async function initChatForUser(user, reqData){
+  isAdminUserGlobal = !!(reqData && reqData.is_admin);
+  teardownChatRealtime();
+
+  if(!user){
+    activeThreadId = null;
+    clearChatUnreadBadge();
+    if(isChatPanelOpen()) renderChatLoggedOutState();
+    return;
+  }
+
+  const panel = document.getElementById('chatPanel');
+  if(isAdminUserGlobal){
+    panel.classList.add('admin-mode');
+    document.getElementById('chatPanelTitle').textContent = 'Chat s uživateli';
+    document.getElementById('chatPanelSubtitle').textContent = 'Admin režim';
+    document.getElementById('chatInputRow').style.display = activeThreadId ? '' : 'none';
+    subscribeAdminRealtime();
+    if(isChatPanelOpen()) await loadAdminConversationList();
+  } else {
+    panel.classList.remove('admin-mode');
+    document.getElementById('chatInputRow').style.display = '';
+    await ensureOwnThread(user);
+    subscribeToThread(activeThreadId);
+    if(isChatPanelOpen()) await loadThreadMessages(activeThreadId);
+  }
+}
+
+function renderChatLoggedOutState(){
+  document.getElementById('chatPanel').classList.remove('admin-mode');
+  document.getElementById('chatInputRow').style.display = 'none';
+  document.getElementById('chatConvList').innerHTML = '';
+  document.getElementById('chatMessages').innerHTML =
+    '<div class="chat-login-prompt" id="chatLoginPrompt">Pro chat s podporou se nejdřív <a href="#login" onclick="toggleChatWidget(); showLogin(event);">přihlas</a>.</div>';
+}
+
+/* ===== OVLÁDÁNÍ PANELU ===== */
+async function toggleChatWidget(){
+  const panel = document.getElementById('chatPanel');
+  if(panel.classList.contains('open')){
+    panel.classList.remove('open');
+  } else {
+    panel.classList.add('open');
+    clearChatUnreadBadge();
+    await refreshChatPanelContent();
+  }
+}
+async function openChatWidget(){
+  const panel = document.getElementById('chatPanel');
+  panel.classList.add('open');
+  clearChatUnreadBadge();
+  await refreshChatPanelContent();
+}
+
+async function refreshChatPanelContent(){
+  const { data: sessionData } = await sb.auth.getSession();
+  const user = sessionData.session ? sessionData.session.user : null;
+  if(!user){ renderChatLoggedOutState(); return; }
+  if(isAdminUserGlobal){
+    await loadAdminConversationList();
+    if(activeThreadId) await loadThreadMessages(activeThreadId);
+  } else {
+    await loadThreadMessages(activeThreadId);
+  }
+}
+
+/* ===== UŽIVATELSKÉ VLÁKNO (jedno na účet) ===== */
+async function ensureOwnThread(user){
+  if(activeThreadId) return;
+  const { data: existing } = await sb.from('support_threads').select('id').eq('user_id', user.id).maybeSingle();
+  if(existing){ activeThreadId = existing.id; return; }
+  const { data: created, error } = await sb.from('support_threads').insert({ user_id: user.id }).select('id').maybeSingle();
+  if(!error && created) activeThreadId = created.id;
+}
+
+function subscribeToThread(threadId){
+  if(!threadId) return;
+  chatMessageChannel = sb.channel('chat-thread-' + threadId)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'support_chat_messages', filter: `thread_id=eq.${threadId}` }, (payload) => {
+      if(isChatPanelOpen()) appendChatMessage(payload.new);
+      if(payload.new.sender === 'admin'){
+        playNotifySound();
+        if(!isChatPanelOpen()) showChatUnreadBadge();
+      }
+    })
+    .subscribe();
+}
+
+/* ===== ADMIN: SEZNAM VŠECH KONVERZACÍ + REALTIME NA CELOU TABULKU ===== */
+function subscribeAdminRealtime(){
+  chatMessageChannel = sb.channel('admin-chat-feed')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'support_chat_messages' }, async (payload) => {
+      const msg = payload.new;
+      if(msg.sender === 'user'){
+        playNotifySound();
+        if(!isChatPanelOpen()) showChatUnreadBadge();
+      }
+      if(isChatPanelOpen()){
+        await loadAdminConversationList();
+        if(msg.thread_id === activeThreadId){
+          appendChatMessage(msg);
+          if(msg.sender === 'user'){
+            await sb.from('support_chat_messages').update({ read_by_admin: true }).eq('id', msg.id);
+          }
+        }
+      }
+    })
+    .subscribe();
+}
+
+async function loadAdminConversationList(){
+  const list = document.getElementById('chatConvList');
+  const { data: threads, error } = await sb
+    .from('support_threads')
+    .select('id, user_id, status, last_message_at')
+    .order('last_message_at', { ascending: false });
+
+  if(error){ list.innerHTML = `<div class="chat-empty">${escapeHtml(error.message)}</div>`; return; }
+  if(!threads || threads.length === 0){ list.innerHTML = '<div class="chat-empty">Zatím žádné konverzace.</div>'; return; }
+
+  const userIds = threads.map(t => t.user_id);
+  const { data: profiles } = await sb
+    .from('verification_requests')
+    .select('user_id,nickname,display_name,plan,avatar_key,avatar_color,avatar_url')
+    .in('user_id', userIds);
+  const profileMap = {};
+  (profiles || []).forEach(p => { profileMap[p.user_id] = p; });
+
+  const { data: lastMsgs } = await sb
+    .from('support_chat_messages')
+    .select('thread_id, sender, body, created_at, read_by_admin')
+    .in('thread_id', threads.map(t => t.id))
+    .order('created_at', { ascending: false });
+  const lastByThread = {};
+  const unreadByThread = {};
+  (lastMsgs || []).forEach(m => {
+    if(!lastByThread[m.thread_id]) lastByThread[m.thread_id] = m;
+    if(m.sender === 'user' && !m.read_by_admin) unreadByThread[m.thread_id] = true;
+  });
+
+  list.innerHTML = threads.map(t => {
+    const p = profileMap[t.user_id] || {};
+    const name = p.display_name || p.nickname || (p.plan === 'kolegove' ? 'Kolega' : 'Uživatel');
+    const last = lastByThread[t.id];
+    const snippet = last ? ((last.sender === 'admin' ? 'Ty: ' : '') + last.body) : '(bez zpráv)';
+    const unread = unreadByThread[t.id];
+    const avatarInner = p.avatar_url ? `<img src="${p.avatar_url}" alt="">` : escapeHtml(p.avatar_key || name.charAt(0).toUpperCase());
+    return `
+      <div class="chat-conv-item ${t.id === activeThreadId ? 'active' : ''}" data-thread="${t.id}" onclick="selectAdminThread('${t.id}')">
+        <div class="chat-conv-avatar" style="background:${p.avatar_color || '#12395e'}">${avatarInner}</div>
+        <div class="chat-conv-meta">
+          <div class="chat-conv-name">${escapeHtml(name)}</div>
+          <div class="chat-conv-snippet">${escapeHtml(snippet)}</div>
+        </div>
+        ${unread ? '<div class="chat-conv-dot"></div>' : ''}
+      </div>`;
+  }).join('');
+}
+
+async function selectAdminThread(threadId){
+  activeThreadId = threadId;
+  document.querySelectorAll('.chat-conv-item').forEach(el => el.classList.toggle('active', el.dataset.thread === threadId));
+  document.getElementById('chatInputRow').style.display = '';
+  await loadThreadMessages(threadId);
+  await sb.from('support_chat_messages').update({ read_by_admin: true }).eq('thread_id', threadId).eq('sender', 'user').eq('read_by_admin', false);
+  await loadAdminConversationList();
+}
+
+/* ===== SPOLEČNÉ: NAČTENÍ / VYKRESLENÍ / ODESLÁNÍ ZPRÁV ===== */
+async function loadThreadMessages(threadId){
+  const wrap = document.getElementById('chatMessages');
+  if(!threadId){
+    wrap.innerHTML = '<div class="chat-empty">Vyber konverzaci vlevo.</div>';
+    return;
+  }
+  const { data: msgs, error } = await sb
+    .from('support_chat_messages')
+    .select('id,sender,body,created_at')
+    .eq('thread_id', threadId)
+    .order('created_at', { ascending: true });
+
+  if(error){ wrap.innerHTML = `<div class="chat-empty">${escapeHtml(error.message)}</div>`; return; }
+  if(!msgs || msgs.length === 0){
+    wrap.innerHTML = '<div class="chat-empty">Napiš první zprávu — ozvu se, jakmile to uvidím.</div>';
+    return;
+  }
+  wrap.innerHTML = msgs.map(m => renderChatMsgHtml(m)).join('');
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function renderChatMsgHtml(m){
+  const time = new Date(m.created_at).toLocaleString('cs-CZ', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+  return `<div class="chat-msg from-${m.sender}">${escapeHtml(m.body)}<span class="time">${time}</span></div>`;
+}
+
+function appendChatMessage(m){
+  const wrap = document.getElementById('chatMessages');
+  const empty = wrap.querySelector('.chat-empty');
+  if(empty) empty.remove();
+  wrap.insertAdjacentHTML('beforeend', renderChatMsgHtml(m));
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function handleChatInputKey(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendChatMessage();
+  }
+}
+
+async function sendChatMessage(){
+  const input = document.getElementById('chatInput');
+  const body = input.value.trim();
+  if(!body || !activeThreadId) return;
+  input.value = '';
+  const sender = isAdminUserGlobal ? 'admin' : 'user';
+  const { error } = await sb.from('support_chat_messages').insert({ thread_id: activeThreadId, sender, body });
+  if(error) alert('Nepodařilo se odeslat zprávu: ' + error.message);
+}
 
 /* ================================================================
    PROFIL, NAV MENU, PODPORA, ZMĚNA HESLA, ZAPOMENUTÉ HESLO
