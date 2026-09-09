@@ -444,7 +444,7 @@
       </div>
 
       <!-- Nepřihlášený stav -->
-      <a class="navcta" id="navLoggedOut" href="#login" onclick="showLogin(event)">Přihlásit se</a>
+      <a class="navcta" id="navLoggedOut" href="#" onclick="showLogin(event)">Přihlásit se</a>
 
       <!-- Přihlášený stav -->
       <div class="navauth" id="navLoggedIn" style="display:none;">
@@ -846,13 +846,50 @@
         ⏳ <strong>Ověření OEČ probíhá</strong> nezávisle na platbě a trvá přibližně 3 dny. Po schválení se odemkne poradna a secret sekce.
       </div>
 
-      <p class="plan-note">Už účet máš? Přihlas se níže.</p>
+      <p class="plan-note">Už účet máš? <button type="button" style="background:none; border:none; padding:0; color:var(--blue-bright); text-decoration:underline; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px;" onclick="showLogin(event)">Přihlas se</button>.</p>
     </div>
   </div>
 
-  <!-- LOGIN -->
-  <div id="login" class="flowcard" style="margin-bottom:30px;">
-    <h3>Přihlášení</h3>
+
+  <div class="sechead member-only colleague-only" style="margin-bottom:18px;">
+    <h3 style="font-size:18px;" id="poradnaHeading">Poradna pro ověřené kolegy</h3>
+  </div>
+  <div class="forumpreview member-only colleague-only" id="forumPreview">
+    <div class="forumpost"><strong>Uzavřená poradna pro ověřené kolegy</strong><div class="meta">Přístup až po ručním schválení příslušnosti</div></div>
+    <div class="lockoverlay" id="lockOverlay"><span class="lockbadge">🔒 Nejprve je potřeba ověření</span></div>
+  </div>
+
+  <div id="livePoradna" class="member-only colleague-only" style="display:none; margin-top:22px;">
+    <div class="flowcard" style="margin-bottom:18px;">
+      <h3>Nový příspěvek</h3>
+      <form class="regform" id="postForm">
+        <label for="postTitle">Nadpis</label>
+        <input type="text" id="postTitle" required>
+        <label for="postContent">Text</label>
+        <textarea id="postContent" rows="4" required style="width:100%; padding:12px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); resize:vertical;"></textarea>
+        <button type="submit">Přidat příspěvek</button>
+      </form>
+      <div class="regstatus" id="postStatus"></div>
+    </div>
+    <div class="forumpreview" id="livePostsList"></div>
+  </div>
+
+  <p class="member-only" style="font-size:13px; color:var(--ink-soft); margin-top:10px;">Poznámka k obsahu: poradna se drží obecných vzorců chování a zkušeností, ne konkrétních jmen třetích osob — kvůli ochraně osobních údajů a předejití pomluvě.</p>
+</section>
+
+
+
+
+
+
+<!-- ============ MODAL: PŘIHLÁŠENÍ ============ -->
+<div class="modal-overlay" id="loginModalOverlay">
+  <div class="modal-box" id="login">
+    <div class="modal-head">
+      <h3>Přihlášení</h3>
+      <button type="button" class="modal-close" onclick="closeLoginModal()">&times;</button>
+    </div>
+    <div class="modal-body">
     <div class="auth-choice">
       <button type="button" id="loginCandidateTab" class="active" onclick="switchLoginType('uchazeci')">🎓 Uchazeč</button>
       <button type="button" id="loginPoliceTab" onclick="switchLoginType('kolegove')">🚓 Policista</button>
@@ -886,38 +923,9 @@
       <button type="button" class="plan-note" style="background:none; border:none; text-decoration:underline; cursor:pointer; padding:8px 0 0; font-family:'Inter',sans-serif;" onclick="openForgotPasswordModal()">Zapomenuté heslo?</button>
       <div class="regstatus" id="loginPoliceStatus"></div>
     </div>
-  </div>
-
-  <div class="sechead member-only colleague-only" style="margin-bottom:18px;">
-    <h3 style="font-size:18px;" id="poradnaHeading">Poradna pro ověřené kolegy</h3>
-  </div>
-  <div class="forumpreview member-only colleague-only" id="forumPreview">
-    <div class="forumpost"><strong>Uzavřená poradna pro ověřené kolegy</strong><div class="meta">Přístup až po ručním schválení příslušnosti</div></div>
-    <div class="lockoverlay" id="lockOverlay"><span class="lockbadge">🔒 Nejprve je potřeba ověření</span></div>
-  </div>
-
-  <div id="livePoradna" class="member-only colleague-only" style="display:none; margin-top:22px;">
-    <div class="flowcard" style="margin-bottom:18px;">
-      <h3>Nový příspěvek</h3>
-      <form class="regform" id="postForm">
-        <label for="postTitle">Nadpis</label>
-        <input type="text" id="postTitle" required>
-        <label for="postContent">Text</label>
-        <textarea id="postContent" rows="4" required style="width:100%; padding:12px 14px; border:1.5px solid #b9beb2; border-radius:8px; font-size:15px; font-family:'Inter',sans-serif; background:var(--bg-soft); resize:vertical;"></textarea>
-        <button type="submit">Přidat příspěvek</button>
-      </form>
-      <div class="regstatus" id="postStatus"></div>
     </div>
-    <div class="forumpreview" id="livePostsList"></div>
   </div>
-
-  <p class="member-only" style="font-size:13px; color:var(--ink-soft); margin-top:10px;">Poznámka k obsahu: poradna se drží obecných vzorců chování a zkušeností, ne konkrétních jmen třetích osob — kvůli ochraně osobních údajů a předejití pomluvě.</p>
-</section>
-
-
-
-
-
+</div>
 
 <!-- ============ MODAL: PROFIL A NASTAVENÍ ============ -->
 <div class="modal-overlay" id="profileModalOverlay">
@@ -996,7 +1004,7 @@
     <div class="chat-thread" id="chatThreadArea">
       <div class="chat-messages" id="chatMessages">
         <div class="chat-login-prompt" id="chatLoginPrompt">
-          Pro chat s podporou se nejdřív <a href="#login" onclick="toggleChatWidget(); showLogin(event);">přihlas</a>.
+          Pro chat s podporou se nejdřív <a href="#" onclick="toggleChatWidget(); showLogin(event);">přihlas</a>.
         </div>
       </div>
       <div class="chat-input-row" id="chatInputRow" style="display:none;">
@@ -1362,9 +1370,25 @@ const checkPaymentBtnEl = document.getElementById('checkPaymentBtn');
 if(checkPaymentBtnEl) checkPaymentBtnEl.addEventListener('click', checkBtcPayment);
 
 /* ===== PŘIHLÁŠENÍ ===== */
+/* Přihlášení je modální okno otevírané z hlavičky (dřív se jen skrolovalo
+   na formulář úplně dole na stránce, což bylo nepraktické). */
+function openLoginModal(type){
+  if(type) switchLoginType(type);
+  document.getElementById('loginCandidateStatus').className = 'regstatus';
+  document.getElementById('loginPoliceStatus').className = 'regstatus';
+  openModal('loginModalOverlay');
+}
+function closeLoginModal(){ closeModal('loginModalOverlay'); }
+
+/* showLogin je název používaný v odkazech v hlavičce a v chatu. */
+function showLogin(e){
+  if(e) e.preventDefault();
+  openLoginModal();
+}
+
 function togglePoradnaLogin(e){
   if(e) e.preventDefault();
-  document.getElementById('login').scrollIntoView({behavior:'smooth', block:'start'});
+  openLoginModal();
 }
 
 function switchLoginType(type){
@@ -1388,6 +1412,7 @@ async function doLogin(internalId, password, statusEl){
   statusEl.className = 'regstatus show success';
   statusEl.textContent = 'Přihlášeno.';
   await checkAccess();
+  setTimeout(closeLoginModal, 600); // krátká pauza, ať uživatel vidí potvrzení
 }
 
 document.getElementById('loginCandidateForm').addEventListener('submit', async (e)=>{
@@ -1581,7 +1606,7 @@ function renderChatLoggedOutState(){
   document.getElementById('chatInputRow').style.display = 'none';
   document.getElementById('chatConvList').innerHTML = '';
   document.getElementById('chatMessages').innerHTML =
-    '<div class="chat-login-prompt" id="chatLoginPrompt">Pro chat s podporou se nejdřív <a href="#login" onclick="toggleChatWidget(); showLogin(event);">přihlas</a>.</div>';
+    '<div class="chat-login-prompt" id="chatLoginPrompt">Pro chat s podporou se nejdřív <a href="#" onclick="toggleChatWidget(); showLogin(event);">přihlas</a>.</div>';
 }
 
 /* ===== OVLÁDÁNÍ PANELU ===== */
@@ -2001,6 +2026,7 @@ async function changePassword(){
 /* ===== ZAPOMENUTÉ HESLO (admin_inbox, type='password_reset') =====
    Funguje i bez přihlášení — schválně, bereš to ručně přes Supabase Studio. */
 function openForgotPasswordModal(){
+  closeLoginModal(); // ať se okna nevrší na sebe
   document.getElementById('forgotPasswordStatus').className = 'regstatus';
   document.getElementById('forgotIdentifier').value = '';
   document.getElementById('forgotPhone').value = '';
