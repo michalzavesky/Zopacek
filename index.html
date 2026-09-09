@@ -759,7 +759,7 @@
   <div class="sechead">
     <span class="tiernum t3">Registrace → platba → přístup</span>
     <h2>Vyber členství a založ účet</h2>
-    <p>Každý typ členství má vlastní přihlášení. Uchazeč používá přezdívku a heslo. Policista používá OEČ, jméno a heslo.</p>
+    <p>Každý typ členství má vlastní přihlášení. Uchazeč používá přezdívku a heslo. Policista používá OEČ a heslo.</p>
   </div>
 
   <div class="poradna-flow" style="margin-bottom:30px;">
@@ -803,7 +803,7 @@
           <input type="text" id="regUtvar" autocomplete="organization" placeholder="Útvar / oddělení">
           <label for="regPasswordPolice">Heslo</label>
           <input type="password" id="regPasswordPolice" minlength="12" autocomplete="new-password">
-          <div class="access-note">🚓 Policista se po registraci přihlašuje pomocí <strong>OEČ + jména + hesla</strong>.</div>
+          <div class="access-note">🚓 Policista se po registraci přihlašuje pomocí <strong>OEČ a hesla</strong>. Jméno a útvar slouží jen k ověření příslušnosti.</div>
         </div>
 
         <button type="submit">Vytvořit účet a zobrazit platební údaje</button>
@@ -909,13 +909,11 @@
 
     <div id="loginPolicePanel" class="login-panel">
       <div class="police-warning">
-        🔐 Policista se přihlašuje pomocí <strong>OEČ + jména + hesla</strong>. Ověření příslušnosti může trvat přibližně 3 dny.
+        🔐 Policista se přihlašuje pomocí <strong>OEČ a hesla</strong>. Ověření příslušnosti může trvat přibližně 3 dny.
       </div>
       <form class="regform" id="loginPoliceForm">
         <label for="loginOec">OEČ</label>
         <input type="text" id="loginOec" inputmode="numeric" autocomplete="username" required>
-        <label for="loginJmeno">Jméno a příjmení</label>
-        <input type="text" id="loginJmeno" autocomplete="name" required>
         <label for="loginPasswordPolice">Heslo</label>
         <input type="password" id="loginPasswordPolice" autocomplete="current-password" required>
         <button type="submit">Přihlásit kolegu</button>
