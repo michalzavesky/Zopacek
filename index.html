@@ -1532,6 +1532,7 @@ let isAdminUserGlobal = false;
 let activeThreadId = null;
 let chatMessageChannel = null;
 let chatUnreadCount = 0;
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
 
 function isChatPanelOpen(){
   return document.getElementById('chatPanel').classList.contains('open');
@@ -1717,10 +1718,17 @@ async function loadAdminConversationList(){
     const last = lastByThread[t.id];
     const snippet = last ? ((last.sender === 'admin' ? 'Ty: ' : '') + last.body) : '(bez zpráv)';
     const unread = unreadByThread[t.id];
-    const avatarInner = p.avatar_url ? `<img src="${p.avatar_url}" alt="">` : escapeHtml(p.avatar_key || name.charAt(0).toUpperCase());
+    /* BEZPEČNOST: avatar_url i avatar_color si nastavuje sám uživatel, takže
+       se do HTML nesmí vložit syrové — jinak by šlo z atributu "vyskočit"
+       a spustit cizí kód v prohlížeči admina (stored XSS -> únos účtu).
+       Server je validuje taky, tohle je druhá vrstva obrany. */
+    const safeColor = HEX_COLOR_RE.test(p.avatar_color || '') ? p.avatar_color : '#12395e';
+    const avatarInner = p.avatar_url
+      ? `<img src="${escapeHtml(p.avatar_url)}" alt="">`
+      : escapeHtml(p.avatar_key || name.charAt(0).toUpperCase());
     return `
-      <div class="chat-conv-item ${t.id === activeThreadId ? 'active' : ''}" data-thread="${t.id}" onclick="selectAdminThread('${t.id}')">
-        <div class="chat-conv-avatar" style="background:${p.avatar_color || '#12395e'}">${avatarInner}</div>
+      <div class="chat-conv-item ${t.id === activeThreadId ? 'active' : ''}" data-thread="${escapeHtml(t.id)}" onclick="selectAdminThread('${escapeHtml(t.id)}')">
+        <div class="chat-conv-avatar" style="background:${safeColor}">${avatarInner}</div>
         <div class="chat-conv-meta">
           <div class="chat-conv-name">${escapeHtml(name)}</div>
           <div class="chat-conv-snippet">${escapeHtml(snippet)}</div>
@@ -1834,7 +1842,7 @@ function renderNavAuth(user, reqData){
 
 function renderAvatarInto(el, reqData, userId, fontSize){
   el.innerHTML = '';
-  el.style.background = reqData.avatar_color || colorForUser(userId);
+  el.style.background = HEX_COLOR_RE.test(reqData.avatar_color || '') ? reqData.avatar_color : colorForUser(userId);
   if(reqData.avatar_url){
     const img = document.createElement('img');
     img.src = reqData.avatar_url;
@@ -2075,7 +2083,7 @@ async function loadPosts(){
     .order('created_at', { ascending: false });
 
   if(error){
-    list.innerHTML = `<div class="forumpost">Nepodařilo se načíst příspěvky: ${error.message}</div>`;
+    list.innerHTML = `<div class="forumpost">Nepodařilo se načíst příspěvky: ${escapeHtml(error.message)}</div>`;
     return;
   }
   if(!posts || posts.length === 0){
