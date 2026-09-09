@@ -1453,6 +1453,15 @@ async function checkAccess(){
   await initChatForUser(user, reqData);
   applyGating(reqData.plan, reqData.subscription_status, reqData.is_admin);
 
+  if(reqData.is_admin){
+    if(paymentStep) paymentStep.style.display = 'none';
+    if(heading) heading.textContent = 'Poradna (admin režim — vidíš vše)';
+    if(forumPreview) forumPreview.style.display = 'none';
+    if(livePoradna) livePoradna.style.display = '';
+    await loadPosts();
+    return;
+  }
+
   if(paymentStep){
     paymentStep.style.display = '';
     if(reqData.subscription_status === 'active'){
